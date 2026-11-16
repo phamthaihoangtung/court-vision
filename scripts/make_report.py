@@ -25,7 +25,10 @@ for d in sorted(glob.glob(f"{R}/clip_*")):
             f"- Court registered in {c['frames_ok_pct']:.1f}% of frames, {c['redetections']} full detection(s), mean line coverage {c['coverage_mean']:.2f}, line residual {c['rms_px_mean']:.2f} px",
             f"- Court-corner motion per frame: {c['corner_motion_px_per_frame_raw']:.2f} px raw, {c['corner_motion_px_per_frame_smoothed']:.2f} px after temporal smoothing",
             f"- Lens: plumb-line estimate lambda = {s['lens'].get('lambda_est', 0):+.3f}, undistortion applied: {s['lens']['applied']}",
-            f"- Tracks: {s['tracks']['raw_ids']} raw ByteTrack ids -> {s['tracks']['players']} players ({s['tracks']['stitched_fragments']} fragments stitched); teams by {s['teams'].get('method')}",
+            f"- Analysis: {s['camera'].get('mode', 'offline')}" + (f" (output delay {s['camera']['lag_s']:.1f} s)" if s['camera'].get('mode') == 'online' else ""),
+            f"- Tracks: {s['tracks']['raw_ids']} raw ByteTrack ids -> {s['tracks']['players']} players (" +
+            (f"{s['tracks']['id_changes_resolved']} id changes resolved" if 'id_changes_resolved' in s['tracks'] else f"{s['tracks']['stitched_fragments']} fragments stitched") +
+            f"); teams by {s['teams'].get('method')}",
             "", "| Player | Tracked (s) | Distance (m) | 90% band | Top speed (km/h) | Avg speed (km/h) | Jumps | Max jump (cm) | Front row |", "|---|---|---|---|---|---|---|---|---|"]
     for q in s["players"]:
         mj = f"{q['max_jump_cm']:.0f} ± {q['max_jump_sigma_cm']:.0f}" if q["n_jumps"] else "-"
@@ -50,10 +53,21 @@ if os.path.exists(f"{R}/benchmark_cpu.json"):
             out.append(f"| {k} | {t['ms_per_frame']:.1f} | {t['fps']:.1f} |")
     out += [f"| **total per frame** | {1000 / b['total_fps']:.1f} | **{b['total_fps']:.1f}** |", ""]
     bench_md = "\n".join(out[out.index(f"## Benchmark ({b['device']}: {b['hardware']})"):]).replace("## Benchmark", "CPU baseline")
+online_md = ""
+if os.path.exists(f"{R}/online_vs_offline.json"):
+    o = json.load(open(f"{R}/online_vs_offline.json"))
+    lines = ["| Clip | Coverage offline | Coverage online | Same person | Players that differ |", "|---|---|---|---|---|"]
+    for tag, q in o.items():
+        diff = [f"{r['offline']}: {r['coverage_offline'] * 100:.0f}% -> {r['coverage_online'] * 100:.0f}% covered, "
+                f"{r['same_person'] * 100:.0f}% same" for r in q["players"]
+                if r["same_person"] < 0.995 or abs(r["coverage_online"] - r["coverage_offline"]) > 0.02]
+        lines.append(f"| {tag} | {q['coverage_offline'] * 100:.1f}% | {q['coverage_online'] * 100:.1f}% | {q['same_person'] * 100:.1f}% | {'; '.join(diff) or '-'} |")
+    online_md = "\n".join(lines)
+    out += ["## Online vs offline", "", online_md, ""]
 # README from the template
 t = open("docs/README.template.md").read()
 find = open("docs/findings.md").read().strip() if os.path.exists("docs/findings.md") else ""
-t = t.replace("<<VALIDATION>>", val_md.strip()).replace("<<FINDINGS>>", find)
+t = t.replace("<<VALIDATION>>", val_md.strip()).replace("<<FINDINGS>>", find).replace("<<ONLINE>>", online_md)
 t = t.replace("<<CLIP>>", "End-line clip (the demo above):\n\n" + clip_md.get("endline", "").strip()).replace("<<BENCH>>", bench_md.strip())
 open("README.md", "w").write(t)
 open("docs/RESULTS.md", "w").write("\n".join(out))

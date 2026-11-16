@@ -1,0 +1,356 @@
+{
+ "diagonal": {
+  "frames": 500,
+  "lag_s": 2.0,
+  "ms_per_frame": 83.70155889599118,
+  "players": [
+   {
+    "online": "B1",
+    "offline": "B1",
+    "coverage_online": 1.0,
+    "coverage_offline": 1.0,
+    "distance_online": 11.562809438086056,
+    "distance_offline": 11.562673252124688,
+    "same_person": 1.0
+   },
+   {
+    "online": "A3",
+    "offline": "A5",
+    "coverage_online": 1.0,
+    "coverage_offline": 1.0,
+    "distance_online": 5.535775941288757,
+    "distance_offline": 5.5358016886688075,
+    "same_person": 1.0
+   },
+   {
+    "online": "B6",
+    "offline": "B6",
+    "coverage_online": 1.0,
+    "coverage_offline": 1.0,
+    "distance_online": 7.262311247378462,
+    "distance_offline": 7.26557209251615,
+    "same_person": 1.0
+   },
+   {
+    "online": "B5",
+    "offline": "B5",
+    "coverage_online": 0.998,
+    "coverage_offline": 0.998,
+    "distance_online": 11.65326367216231,
+    "distance_offline": 11.708047014777565,
+    "same_person": 1.0
+   },
+   {
+    "online": "A4",
+    "offline": "A4",
+    "coverage_online": 1.0,
+    "coverage_offline": 1.0,
+    "distance_online": 10.955948161943237,
+    "distance_offline": 10.952154859627745,
+    "same_person": 1.0
+   },
+   {
+    "online": "A1",
+    "offline": "A1",
+    "coverage_online": 1.0,
+    "coverage_offline": 1.0,
+    "distance_online": 6.037243233278594,
+    "distance_offline": 5.947105363832638,
+    "same_person": 1.0
+   },
+   {
+    "online": "A2",
+    "offline": "A3",
+    "coverage_online": 1.0,
+    "coverage_offline": 1.0,
+    "distance_online": 3.6569506078945557,
+    "distance_offline": 3.6698530813715564,
+    "same_person": 1.0
+   },
+   {
+    "online": "B2",
+    "offline": "B2",
+    "coverage_online": 0.988,
+    "coverage_offline": 0.988,
+    "distance_online": 8.748217949193664,
+    "distance_offline": 8.748971208146425,
+    "same_person": 1.0
+   },
+   {
+    "online": "B4",
+    "offline": "B4",
+    "coverage_online": 0.988,
+    "coverage_offline": 0.94,
+    "distance_online": 14.169178051969295,
+    "distance_offline": 13.15901075835102,
+    "same_person": 1.0
+   },
+   {
+    "online": "B3",
+    "offline": "B3",
+    "coverage_online": 1.0,
+    "coverage_offline": 1.0,
+    "distance_online": 11.12896582385591,
+    "distance_offline": 11.171960038628892,
+    "same_person": 1.0
+   },
+   {
+    "online": "A5",
+    "offline": "A6",
+    "coverage_online": 1.0,
+    "coverage_offline": 1.0,
+    "distance_online": 5.675856306669554,
+    "distance_offline": 5.6757325606413165,
+    "same_person": 1.0
+   },
+   {
+    "online": "A6",
+    "offline": "A2",
+    "coverage_online": 0.694,
+    "coverage_offline": 0.394,
+    "distance_online": 19.877804555099846,
+    "distance_offline": 9.131079171612578,
+    "same_person": 1.0
+   }
+  ],
+  "coverage_online": 0.9723333333333333,
+  "coverage_offline": 0.9433333333333334,
+  "same_person": 1.0
+ },
+ "endline": {
+  "frames": 636,
+  "lag_s": 2.0,
+  "ms_per_frame": 93.27840985534068,
+  "players": [
+   {
+    "online": "A5",
+    "offline": "A5",
+    "coverage_online": 1.0,
+    "coverage_offline": 1.0,
+    "distance_online": 24.289040044195684,
+    "distance_offline": 24.266988699841654,
+    "same_person": 1.0
+   },
+   {
+    "online": "B2",
+    "offline": "B3",
+    "coverage_online": 1.0,
+    "coverage_offline": 1.0,
+    "distance_online": 21.355786162864515,
+    "distance_offline": 21.36102366211328,
+    "same_person": 1.0
+   },
+   {
+    "online": "A3",
+    "offline": "A3",
+    "coverage_online": 1.0,
+    "coverage_offline": 1.0,
+    "distance_online": 2.775101672439918,
+    "distance_offline": 2.7751545517090905,
+    "same_person": 1.0
+   },
+   {
+    "online": "B1",
+    "offline": "B1",
+    "coverage_online": 1.0,
+    "coverage_offline": 1.0,
+    "distance_online": 3.954300846819968,
+    "distance_offline": 3.9288128785201986,
+    "same_person": 1.0
+   },
+   {
+    "online": "B6",
+    "offline": "B6",
+    "coverage_online": 1.0,
+    "coverage_offline": 1.0,
+    "distance_online": 9.828858661201927,
+    "distance_offline": 9.828838131791123,
+    "same_person": 1.0
+   },
+   {
+    "online": "A6",
+    "offline": "A6",
+    "coverage_online": 1.0,
+    "coverage_offline": 1.0,
+    "distance_online": 19.889461491264463,
+    "distance_offline": 19.095833279988284,
+    "same_person": 0.9072327044025157
+   },
+   {
+    "online": "B4",
+    "offline": "B4",
+    "coverage_online": 1.0,
+    "coverage_offline": 0.6855345911949685,
+    "distance_online": 13.500541144605798,
+    "distance_offline": 5.453836508695443,
+    "same_person": 1.0
+   },
+   {
+    "online": "B5",
+    "offline": "B5",
+    "coverage_online": 1.0,
+    "coverage_offline": 1.0,
+    "distance_online": 11.276132374258008,
+    "distance_offline": 11.296578690000384,
+    "same_person": 1.0
+   },
+   {
+    "online": "B3",
+    "offline": "B2",
+    "coverage_online": 1.0,
+    "coverage_offline": 1.0,
+    "distance_online": 7.035705982383399,
+    "distance_offline": 7.045497362700418,
+    "same_person": 1.0
+   },
+   {
+    "online": "A2",
+    "offline": "A2",
+    "coverage_online": 1.0,
+    "coverage_offline": 1.0,
+    "distance_online": 13.804019542177771,
+    "distance_offline": 13.803777271217497,
+    "same_person": 1.0
+   },
+   {
+    "online": "A1",
+    "offline": "A1",
+    "coverage_online": 1.0,
+    "coverage_offline": 1.0,
+    "distance_online": 8.036915925083749,
+    "distance_offline": 8.036945128345707,
+    "same_person": 1.0
+   },
+   {
+    "online": "A4",
+    "offline": "A4",
+    "coverage_online": 1.0,
+    "coverage_offline": 1.0,
+    "distance_online": 13.175772021968873,
+    "distance_offline": 13.18916705380645,
+    "same_person": 1.0
+   }
+  ],
+  "coverage_online": 1.0,
+  "coverage_offline": 0.9737945492662474,
+  "same_person": 0.9922693920335429
+ },
+ "topdown": {
+  "frames": 300,
+  "lag_s": 2.0,
+  "ms_per_frame": 86.28347521007527,
+  "players": [
+   {
+    "online": "B4",
+    "offline": "B4",
+    "coverage_online": 0.9633333333333334,
+    "coverage_offline": 1.0,
+    "distance_online": 6.4563171755593345,
+    "distance_offline": 6.643455053782808,
+    "same_person": 1.0
+   },
+   {
+    "online": "A4",
+    "offline": "A3",
+    "coverage_online": 1.0,
+    "coverage_offline": 1.0,
+    "distance_online": 2.2518293040715287,
+    "distance_offline": 2.251812549707595,
+    "same_person": 1.0
+   },
+   {
+    "online": "A1",
+    "offline": "A1",
+    "coverage_online": 1.0,
+    "coverage_offline": 1.0,
+    "distance_online": 3.620168130167684,
+    "distance_offline": 3.581306901268941,
+    "same_person": 1.0
+   },
+   {
+    "online": "A6",
+    "offline": "A6",
+    "coverage_online": 0.7066666666666667,
+    "coverage_offline": 0.64,
+    "distance_online": 8.183712234551853,
+    "distance_offline": 5.794479020473657,
+    "same_person": 1.0
+   },
+   {
+    "online": "B2",
+    "offline": "B2",
+    "coverage_online": 0.9966666666666667,
+    "coverage_offline": 1.0,
+    "distance_online": 10.123827527637637,
+    "distance_offline": 10.11606288719823,
+    "same_person": 1.0
+   },
+   {
+    "online": "B6",
+    "offline": "B6",
+    "coverage_online": 1.0,
+    "coverage_offline": 1.0,
+    "distance_online": 6.5548483772434905,
+    "distance_offline": 6.549816246782629,
+    "same_person": 1.0
+   },
+   {
+    "online": "B3",
+    "offline": "B3",
+    "coverage_online": 1.0,
+    "coverage_offline": 1.0,
+    "distance_online": 7.1943289316666705,
+    "distance_offline": 7.194683487613876,
+    "same_person": 1.0
+   },
+   {
+    "online": "A3",
+    "offline": "A4",
+    "coverage_online": 1.0,
+    "coverage_offline": 1.0,
+    "distance_online": 7.899881756191403,
+    "distance_offline": 7.899628075777385,
+    "same_person": 1.0
+   },
+   {
+    "online": "B5",
+    "offline": "B5",
+    "coverage_online": 0.9833333333333333,
+    "coverage_offline": 1.0,
+    "distance_online": 9.640299240544158,
+    "distance_offline": 9.807451458331112,
+    "same_person": 1.0
+   },
+   {
+    "online": "B1",
+    "offline": "B1",
+    "coverage_online": 1.0,
+    "coverage_offline": 0.9733333333333334,
+    "distance_online": 13.989391940727536,
+    "distance_offline": 13.398399522539492,
+    "same_person": 1.0
+   },
+   {
+    "online": "A5",
+    "offline": "A5",
+    "coverage_online": 1.0,
+    "coverage_offline": 1.0,
+    "distance_online": 1.4348945279404188,
+    "distance_offline": 1.434911513607532,
+    "same_person": 1.0
+   },
+   {
+    "online": "A2",
+    "offline": "A2",
+    "coverage_online": 1.0,
+    "coverage_offline": 1.0,
+    "distance_online": 12.523400922587042,
+    "distance_offline": 12.525528350741155,
+    "same_person": 1.0
+   }
+  ],
+  "coverage_online": 0.9708333333333332,
+  "coverage_offline": 0.9677777777777777,
+  "same_person": 1.0
+ }
+}

@@ -9,6 +9,8 @@ minimap.
 
 The clip above is drone footage of an outdoor court. The court is found from its painted lines,
 re-registered on every frame (the drone drifts), and every player is tracked on the court plane.
+The demo outputs come from the online mode: frames go in one at a time and results come out with a
+fixed 2 s delay, which is the logic a live camera feed would run (see [Online mode](#online-mode)).
 
 | Best frame | Match summary card |
 |---|---|
@@ -26,9 +28,11 @@ re-registered on every frame (the drone drifts), and every player is tracked on 
    robust least-squares fit on all line pixels and tracked frame to frame. Templates: indoor 18x9 m,
    beach 16x8 m, plus padel and 5/7-a-side football.
 3. **Players** - pretrained Ultralytics YOLO (weights downloaded from GitHub) + ByteTrack;
-   fragments broken by occlusion are stitched in court space; teams from side of the net plus jersey
-   colour clustering; foot points projected to the court plane and smoothed with a Kalman/RTS filter
-   in metres.
+   fragments broken by occlusion, or by ByteTrack handing a player to a new id, are stitched in
+   court space (a new id may overlap the old one for up to 2 s if both sit on the same spot, and
+   not when another player stands within 1 m); teams from side of the net plus jersey colour
+   clustering; foot points projected to the court plane and smoothed with a Kalman/RTS filter in
+   metres.
 4. **Jumps** - a jump is a short ballistic bump of the foot point along the projected vertical.
    During the airborne phase the ground position is interpolated between take-off and landing
    instead of projecting the airborne point, and height is measured from the camera recovered from
@@ -38,7 +42,8 @@ re-registered on every frame (the drone drifts), and every player is tracked on 
    uncertainty (block bootstrap of the line fit), foot-localisation bias and tracker jitter.
 6. **Outputs** - side-by-side annotated MP4 (H.264) with minimap, per-player stat cards (PNG),
    CSV/JSON, GIF, and a Gradio app.
-7. **Validation** - synthetic courts rendered with known intrinsics, pose and distortion, clutter
+7. **Online mode** - the same analysis frame by frame with a fixed output delay; see below.
+8. **Validation** - synthetic courts rendered with known intrinsics, pose and distortion, clutter
    lines from basketball and badminton, simulated players with occlusions and jumps.
 
 ## Architecture
@@ -75,6 +80,7 @@ flowchart LR
 | Players | `courtvision/players.py`, `courtvision/tracking.py` |
 | Jumps | `courtvision/jumps.py` |
 | Stats + Monte Carlo | `courtvision/stats.py` |
+| Online analysis (fixed delay) | `courtvision/online.py` |
 | Rendering, exports | `courtvision/render.py`, `courtvision/pipeline.py` |
 | Synthetic scenes, validation | `courtvision/synth.py`, `courtvision/validate.py` |
 
@@ -96,6 +102,8 @@ Useful flags:
 | `--court indoor\|beach\|padel\|football5\|football7` | court template |
 | `--undistort auto\|off\|<lambda>` | lens handling |
 | `--line-color white\|any` | `any` if your court lines are not white |
+| `--online`, `--lag 2.0` | frame-by-frame analysis with a fixed output delay (the demo uses it) |
+| `--reuse-pass1` | reuse the cached registration + detections in `--out` (re-analyse without YOLO) |
 
 Outputs in `--out`: `*_annotated.mp4`, `*_demo.gif`, `best_frame.png`, `cards/*.png`,
 `player_stats.csv`, `positions.csv`, `jumps.csv`, `summary.json`.
@@ -106,8 +114,42 @@ Other entry points:
 python app.py                                         # Gradio: upload clip -> results
 python scripts/validate_synthetic.py --trials 24      # synthetic validation + sensitivity
 python scripts/benchmark.py clip.mp4 --device cuda --model-size s   # FPS per stage
+python scripts/compare_online.py                      # online vs offline on the cached clip runs
 pytest                                                # tests
 ```
+
+## Online mode
+
+A live feed cannot look at the whole clip. `courtvision/online.py` takes one frame at a time
+(court registration + detections from YOLO/ByteTrack, which are already causal) and finalises each
+frame `lag_s` (default 2 s) later. Nothing reads further ahead than that delay.
+
+- **Warm-up (first 3 s)**: the offline logic runs once on this window to set the focal length, 12
+  player slots, the two teams and their kit colours, and each team's side of the net.
+- **Every frame**: a slot only continues with its own ByteTrack id. If that id starts showing the
+  other team's kit for 5 frames in a row, ByteTrack has moved it to another player and the slot lets
+  it go.
+- **Id changes**: detections with an id nobody owns become tracklets. Once a tracklet has lasted
+  0.5 s, all live tracklets and all lost slots are matched in one assignment, and the ripe ones are
+  written back into their slot. The delay leaves room to revise those frames, so a tracklet is not
+  handed to the wrong slot just because the right player reappears a moment later.
+- **Every 0.2 s**: frames that are now 2 s old are finalised with the offline code: homography
+  smoothing, jump detection (a jump is committed once its landing is seen), RTS smoothing on a
+  sliding window, and the same Monte Carlo bands. Stats describe the match up to `now - 2 s`.
+
+Online vs offline on the same detections (`python scripts/compare_online.py`); "same person" is the
+share of frames where both name the same player (< 0.5 m apart):
+
+<<ONLINE>>
+
+The offline run on the end-line clip follows a ByteTrack id switch at the end of the clip and puts
+a team-A label on a team-B player for the last 2 s; the kit check in online mode does not. The
+delay trades latency for coverage: who-is-who is the same from 1 s to 3 s, but a gap longer than
+the delay cannot be bridged, so top-down coverage is 94.8% at 1 s, 96.1% at 1.5 s, 97.1% at 2 s
+and 97.6% at 3 s. On simulated matches where
+ByteTrack gives a new id after every occlusion, online tracking is as good as or better than the
+offline stitching on all 8 seeds tried; when two players of the same team cross while both are
+hidden, either method can swap them.
 
 ## Results
 
@@ -138,8 +180,9 @@ What the sweep shows:
 <<CLIP>>
 
 There is no ground truth for the real clips, so these numbers are plausibility-checked only
-(overlay alignment by eye, speeds in a human range). Jumps were checked by eye against the
-frames: see the jump section under Limitations.
+(overlay alignment by eye, speeds in a human range, identities checked by eye wherever online and
+offline disagree). Jumps were checked by eye against the frames: see the jump section under
+Limitations.
 
 ### Speed
 
@@ -161,12 +204,25 @@ bottleneck on CPU and the stage that moves to the GPU.
   bottoms (or ankles with `--pose`), and box bottoms also move when a player crouches, bends, or
   has their legs hidden by the net. Three checks reject those cases: the box must not shrink, the
   box top must rise with the feet, and the bump must be large compared with posture jitter. On the
-  three demo clips this cut detections from 25 to 6. By eye, 3 of the 6 are real actions (a block,
-  a jump serve, a jump set), and some real blocks at the net are missed. Treat per-player jump
-  counts as indicative, not as a stat to publish.
-- Player labels are per clip. No jersey numbers, no ball tracking.
+  three demo clips the online run reports 9 jumps. By eye, 5 look like real jumps (an attack at the
+  net, a jump set, two jump serves, a reach for the ball), 2 are unclear (a low dig, a serve toss)
+  and 2 are wrong (a dive for the ball, two players overlapping in one box); some real blocks at
+  the net are missed. Treat per-player jump counts as indicative, not as a stat to publish.
+- Player labels are per clip. No jersey numbers, no ball tracking. When several players in the
+  same kit huddle together, who is who after they split is a guess (online and offline can disagree
+  there, and nothing in the image says which is right).
+- A player who walks more than 3 m off the court (substitution, leaving) is no longer tracked.
+- Online mode is about the logic, not real time yet: the analysis alone takes about 80 ms per frame
+  on CPU, on top of detection and registration (see Speed).
 - Uncertainty bands cover calibration, foot bias and tracker jitter; they do not cover identity
   switches.
+
+## Next steps
+
+- Guided re-detection: when a slot is lost, crop around its predicted position, upscale and run the
+  detector with a low threshold, for small far-side players that YOLO misses at full frame.
+- A live entry point (webcam / RTSP) around the online analyzer, with a fixed processing stride.
+- GPU / TensorRT detection and cheaper per-frame registration (the camera is fixed) for real time.
 
 ## Hire me
 
