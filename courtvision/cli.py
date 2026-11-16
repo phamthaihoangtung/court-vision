@@ -33,11 +33,15 @@ def main(argv=None):
     r.add_argument("--no-render", action="store_true")
     r.add_argument("--no-gif", action="store_true")
     r.add_argument("--reuse-pass1", action="store_true", help="reuse cached detections/registration in --out")
+    r.add_argument("--online", action="store_true",
+                   help="analyse frame by frame with a fixed output delay (the logic a live feed would use)")
+    r.add_argument("--lag", type=float, default=2.0, help="output delay in seconds for --online")
     add_runtime_args(r)
     a = ap.parse_args(argv)
     from .pipeline import run
     cfg = config_from_args(a)
     cfg.render, cfg.gif, cfg.reuse_pass1 = not a.no_render, not a.no_gif, a.reuse_pass1
+    cfg.online, cfg.lag_s = a.online, a.lag
     summary, _ = run(a.video, a.out, cfg, progress=lambda p, m: print(f"\r[{p * 100:5.1f}%] {m}   ", end="", flush=True))
     print()
     print(json.dumps({k: summary[k] for k in ("processed", "court", "camera", "lens", "tracks", "timing")}, indent=1, default=float))

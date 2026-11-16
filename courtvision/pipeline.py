@@ -32,6 +32,8 @@ class Config:
     gif: bool = True
     cards: bool = True
     reuse_pass1: bool = False      # reuse cached registration + detections from a previous run
+    online: bool = False           # frame-by-frame analysis with a fixed output delay (courtvision.online)
+    lag_s: float = 2.0             # output delay of the online analysis
     out_width: int = 1920
     out_height: int = 1080
 
@@ -184,9 +186,24 @@ def run(video, out_dir, cfg: Config | None = None, progress=None, detector=None)
             by.setdefault(d["tid"], []).append((fi, d))
     raw = [Track(tid, np.array([f for f, _ in v]), np.array([d["foot"] for _, d in v]), np.array([d["box"] for _, d in v]),
                  np.array([d["color"] for _, d in v])) for tid, v in by.items()]
-    tracks = filter_and_stitch(raw, Hinv, fps, tpl, max_players=cfg.max_players)
-    team_info = assign_teams(tracks, Hinv, tpl) or {}
-    results, cam_info = analyze(tracks, Hseq, Hs, fps, tpl, (W, H))
+    if cfg.online:
+        # frames go in one by one, results come out lag_s later: the same logic as on a live feed
+        from .online import OnlineAnalyzer, OnlineConfig
+        on = OnlineAnalyzer(tpl, fps, (W, H), OnlineConfig(lag_s=cfg.lag_s, max_players=cfg.max_players))
+        for reg, dl in zip(regs, dets):
+            on.push(reg, dl)
+        on.flush()
+        results = on.results()
+        cam_info = {"focal_px": on.f, "mode": "online", "lag_s": cfg.lag_s}
+        team_info = {"method": "side+colour (warm-up)", "kits_separated": on.kits is not None}
+        track_info = {"raw_ids": len(raw), "players": len(results), "id_changes_resolved": on.n_commits}
+    else:
+        tracks = filter_and_stitch(raw, Hinv, fps, tpl, max_players=cfg.max_players)
+        team_info = assign_teams(tracks, Hinv, tpl) or {}
+        results, cam_info = analyze(tracks, Hseq, Hs, fps, tpl, (W, H))
+        cam_info["mode"] = "offline"
+        track_info = {"raw_ids": len(raw), "players": len(results),
+                      "stitched_fragments": int(sum(t.meta.get("stitched", 1) - 1 for t in tracks))}
     results.sort(key=lambda r: r.label)
     tm.add("analysis", time.perf_counter() - t0, T)
 
@@ -205,7 +222,7 @@ def run(video, out_dir, cfg: Config | None = None, progress=None, detector=None)
                   "corner_motion_px_per_frame_raw": jitter, "corner_motion_px_per_frame_smoothed": jitter_s,
                   "bootstrap_corner_sigma_px": float(apply_h(Hs.reshape(-1, 3, 3), tpl.corners).reshape(T, -1, 4, 2).std(1).mean())},
         "camera": cam_info, "lens": lens_info, "teams": team_info,
-        "tracks": {"raw_ids": len(raw), "players": len(results), "stitched_fragments": int(sum(t.meta.get("stitched", 1) - 1 for t in tracks))},
+        "tracks": track_info,
         "players": [{"label": r.label, "team": "AB"[r.team % 2], **r.stats, "jumps": r.jumps} for r in results],
     }
     import pandas as pd

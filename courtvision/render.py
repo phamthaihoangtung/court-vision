@@ -43,8 +43,13 @@ class Minimap:
             if not (r.f0 <= fi <= r.f1):
                 continue
             i = fi - r.f0
+            if not np.isfinite(r.xy[i]).all():
+                continue                              # not tracked in this frame (online output)
             col = TEAM_BGR[r.team % 2]
-            tr = self.to_px(r.xy[max(i - n, 0):i + 1]).astype(np.int32)
+            seg = r.xy[max(i - n, 0):i + 1]
+            gap = np.where(~np.isfinite(seg).all(1))[0]
+            seg = seg[gap[-1] + 1:] if len(gap) else seg   # trail only since the last untracked frame
+            tr = self.to_px(seg).astype(np.int32)
             if len(tr) > 1:
                 cv2.polylines(img, [tr], False, tuple(int(c * 0.7) for c in col), 2, cv2.LINE_AA)
             p = tuple(tr[-1])
@@ -70,6 +75,8 @@ def draw_frame(frame, H, tpl, results, fi, fps, scale=1.0):
         if not (r.f0 <= fi <= r.f1):
             continue
         i = fi - r.f0
+        if not np.isfinite(r.xy[i]).all():
+            continue
         col = TEAM_BGR[r.team % 2]
         g = apply_h(H, r.xy[i:i + 1])[0]
         cv2.ellipse(frame, (int(g[0]), int(g[1])), (int(16 * lw / 2), int(7 * lw / 2)), 0, 0, 360, col, lw, cv2.LINE_AA)
@@ -101,10 +108,10 @@ def stats_panel(results, fi, fps, w, h):
         rows = [r for r in results if r.team == tm]
         for k, r in enumerate(rows[: max(1, (h - 70) // 30)]):
             i = int(np.clip(fi - r.f0, 0, len(r.xy) - 1))
-            active = r.f0 <= fi <= r.f1
+            active = r.f0 <= fi <= r.f1 and np.isfinite(r.xy[i]).all()
             step = np.linalg.norm(np.diff(r.xy[:i + 1], axis=0), axis=1)
             mov = r.speed[1:i + 1] > 0.10
-            dist = float((step * mov).sum()) if i > 0 else 0.0
+            dist = float(np.nansum(step * mov)) if i > 0 else 0.0
             js = [j for j in r.jumps if j["f_peak"] <= fi]
             best = max([j["height_m"] for j in js], default=0) * 100
             top = r.speed[:i + 1].max() * 3.6
