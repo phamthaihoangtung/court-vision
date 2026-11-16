@@ -234,6 +234,11 @@ deployment on edge devices next to your cameras.
 
 Send a 30-second sample clip and I will tell you what accuracy to expect before you commit.
 
+## Acknowledgements
+
+The demo clips are stock drone footage by [Ahmet Kurt](https://www.pexels.com/@ahmetkurt/) on
+[Pexels](https://www.pexels.com/), used under the Pexels licence. Thank you, Ahmet.
+
 ## License
 
 MIT for the code. YOLO weights are downloaded from Ultralytics at run time and carry their own
