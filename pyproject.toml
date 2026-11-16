@@ -1,0 +1,17 @@
+[project]
+name = "court-vision"
+version = "0.1.0"
+description = "No-training volleyball analytics from fixed-camera footage: classical CV + 3D geometry"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = ["numpy", "scipy", "opencv-python-headless", "ultralytics", "lap", "pandas", "matplotlib"]
+[project.optional-dependencies]
+app = ["gradio"]
+dev = ["pytest"]
+[project.scripts]
+courtvision = "courtvision.cli:main"
+[tool.setuptools]
+packages = ["courtvision"]
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["ignore"]

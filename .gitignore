@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pt
+*.pyc
+.pytest_cache/
+results/**/*.mp4
+results/**/positions.csv
+*.egg-info/
+results/**/pass1.pkl
+results/*.log
+results/*.txt

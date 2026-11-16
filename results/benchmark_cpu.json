@@ -1,0 +1,55 @@
+{
+ "device": "cpu",
+ "hardware": "x86_64 x12",
+ "timing": {
+  "lens_estimate": {
+   "total_s": 0.278,
+   "calls": 1,
+   "ms_per_frame": 277.69,
+   "fps": 3.6
+  },
+  "decode": {
+   "total_s": 0.251,
+   "calls": 100,
+   "ms_per_frame": 2.51,
+   "fps": 398.21
+  },
+  "court_registration": {
+   "total_s": 6.872,
+   "calls": 100,
+   "ms_per_frame": 68.72,
+   "fps": 14.55
+  },
+  "detect_track": {
+   "total_s": 14.7,
+   "calls": 100,
+   "ms_per_frame": 147.0,
+   "fps": 6.8
+  },
+  "analysis": {
+   "total_s": 0.466,
+   "calls": 100,
+   "ms_per_frame": 4.66,
+   "fps": 214.39
+  },
+  "stat_cards": {
+   "total_s": 3.216,
+   "calls": 12,
+   "ms_per_frame": 268.02,
+   "fps": 3.73
+  },
+  "render": {
+   "total_s": 3.479,
+   "calls": 100,
+   "ms_per_frame": 34.79,
+   "fps": 28.74
+  },
+  "encode": {
+   "total_s": 1.201,
+   "calls": 100,
+   "ms_per_frame": 12.01,
+   "fps": 83.25
+  }
+ },
+ "total_fps": 3.7079609922503614
+}

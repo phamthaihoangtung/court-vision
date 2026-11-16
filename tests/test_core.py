@@ -1,0 +1,152 @@
+import numpy as np
+import pytest
+from courtvision.camera import calibrate_focal, pose_from_h
+from courtvision.court import CourtRegistrar
+from courtvision.geometry import apply_h, h_from_4pts
+from courtvision.jumps import detect_jumps
+from courtvision.lens import LensModel, estimate_plumbline
+from courtvision.stats import analyze, cameras_from_h
+from courtvision.synth import SynthCamera, random_camera, render_scene, simulate_detections, simulate_players
+from courtvision.templates import TEMPLATES, get_template
+from courtvision.tracking import kalman_rts
+from courtvision.validate import court_error
+
+
+def cam0(lam=0.0):
+    return SynthCamera((1280, 720), 1000.0, np.array([9.0, -16.0, 9.0]), np.array([9.0, 4.5, 0.0]), lam)
+
+
+def test_templates_dimensions():
+    assert (TEMPLATES["indoor"].length, TEMPLATES["indoor"].width) == (18.0, 9.0)
+    assert (TEMPLATES["beach"].length, TEMPLATES["beach"].width) == (16.0, 8.0)
+    assert len(TEMPLATES["indoor"].segments) == 7
+    for t in TEMPLATES.values():
+        pts, idx = t.sample(0.5)
+        assert len(pts) == len(idx) and pts[:, 0].max() <= t.length + 1e-9
+
+
+def test_batched_homography_exact():
+    rng = np.random.default_rng(0)
+    src = np.array([[0, 0], [18, 0], [18, 9], [0, 9.0]])
+    dst = src * 30 + rng.normal(0, 20, (5, 4, 2)) + 200
+    H = h_from_4pts(np.broadcast_to(src, dst.shape), dst)
+    for i in range(5):
+        assert np.allclose(apply_h(H[i], src), dst[i], atol=1e-6)
+
+
+def test_lens_roundtrip_and_maps():
+    m = LensModel(-0.2, (1280, 720))
+    p = np.random.default_rng(0).uniform([0, 0], [1280, 720], (200, 2))
+    assert np.allclose(m.distort_points(m.undistort_points(p)), p, atol=1e-6)
+
+
+def test_focal_and_pose_recovered_from_homography():
+    cam = cam0()
+    f, resid, obs = calibrate_focal(cam.H, cam.size)
+    assert abs(f / cam.f - 1) < 0.01 and resid < 1e-6 and obs > 10
+    est = pose_from_h(cam.H, f, cam.size)
+    assert np.allclose(est.C, cam.C, atol=0.15)
+    assert np.allclose(est.project([[5, 3, 0.7]]), cam.project([[5, 3, 0.7]]), atol=1.5)
+
+
+@pytest.mark.parametrize("court", ["indoor", "beach"])
+def test_court_registration_clean(court):
+    tpl = get_template(court)
+    cam = cam0()
+    img = render_scene(cam, tpl, np.random.default_rng(1), clutter=False)
+    reg = CourtRegistrar(tpl).detect(img)
+    assert reg is not None and reg.ok
+    assert court_error(reg.H, cam, tpl)[1] < 0.05           # < 5 cm on the ground
+
+
+def test_court_registration_with_clutter_and_occluders_then_track():
+    tpl = get_template("indoor")
+    cam = cam0()
+    rng = np.random.default_rng(2)
+    gt = simulate_players(tpl, rng, duration=2.0)
+    img = render_scene(cam, tpl, rng, clutter=True, players_xyz=np.c_[gt["xy"][:, 0], gt["z"][:, 0]])
+    r = CourtRegistrar(tpl)
+    reg = r.update(img)
+    assert reg.ok and court_error(reg.H, cam, tpl)[1] < 0.08
+    reg2 = r.update(img)
+    assert reg2.source == "track" and court_error(reg2.H, cam, tpl)[1] < 0.08
+    assert reg2.H_samples.shape == (16, 3, 3)
+
+
+def test_plumbline_recovers_distortion():
+    tpl = get_template("indoor")
+    cam = cam0(lam=-0.2)
+    img = render_scene(cam, tpl, np.random.default_rng(3), clutter=True)
+    m = estimate_plumbline(img)
+    assert m.significant and abs(m.lam - (-0.2)) < 0.04
+    m0 = estimate_plumbline(render_scene(cam0(), tpl, np.random.default_rng(3), clutter=True))
+    assert not m0.significant
+
+
+def test_kalman_bridges_gaps():
+    t = np.arange(100) / 25.0
+    z = np.c_[2.0 * t, 1.0 + 0 * t] + np.random.default_rng(0).normal(0, 0.05, (100, 2))
+    z[40:55] = np.nan
+    pos, vel = kalman_rts(z, 1 / 25.0)
+    assert np.abs(pos[47] - [2.0 * t[47], 1.0]).max() < 0.2
+    assert abs(np.median(vel[:, 0]) - 2.0) < 0.2
+
+
+def test_jump_height_from_geometry():
+    cam = cam0()
+    fps, T = 25.0, 100
+    xy = np.tile([[12.0, 4.0]], (T, 1)); z = np.zeros(T)
+    h_true, n = 0.5, int(round(np.sqrt(8 * 0.5 / 9.81) * fps))
+    tau = np.arange(1, n) / n
+    z[40:40 + n - 1] = 4 * h_true * tau * (1 - tau)
+    uv = cam.project(np.c_[xy, z]) + np.random.default_rng(0).normal(0, 0.5, (T, 2))
+    H = np.tile(cam.H, (T, 1, 1))
+    P, f, _ = cameras_from_h(H, cam.size)
+    air, ground, zs, jumps = detect_jumps(uv, np.linalg.inv(H), P, fps)
+    assert len(jumps) == 1
+    assert abs(jumps[0]["height_m"] - h_true) < 0.08
+    assert np.abs(ground[45] - [12.0, 4.0]).max() < 0.15      # airborne frames are not projected
+
+
+def test_stats_end_to_end_synthetic():
+    tpl = get_template("indoor")
+    cam = cam0()
+    rng = np.random.default_rng(5)
+    gt = simulate_players(tpl, rng, duration=10.0)
+    tracks = simulate_detections(cam, gt, rng, noise_px=1.0)
+    T = gt["xy"].shape[1]
+    H = np.tile(cam.H, (T, 1, 1)); Hs = np.tile(cam.H, (T, 8, 1, 1))
+    res, info = analyze(tracks, H, Hs, 25.0, tpl, cam.size)
+    assert len(res) == 12
+    err = []
+    for p, r in enumerate(res):
+        d = np.linalg.norm(np.diff(gt["xy"][p], axis=0), axis=1).sum()
+        err.append(abs(r.stats["distance_m"] - d) / max(d, 1.0))
+        assert r.stats["distance_m_lo"] <= r.stats["distance_m"] <= r.stats["distance_m_hi"]
+        assert 0 <= r.stats["front_row_frac"] <= 1
+    assert np.median(err) < 0.12
+
+
+@pytest.mark.parametrize("court", ["padel", "football5"])
+def test_other_sport_templates_register(court):
+    tpl = get_template(court)
+    rng = np.random.default_rng(0)
+    cam = random_camera(tpl, rng)
+    reg = CourtRegistrar(tpl).detect(render_scene(cam, tpl, rng, clutter=False))
+    assert reg is not None and reg.ok and court_error(reg.H, cam, tpl)[1] < 0.1
+
+
+def test_occluded_legs_are_not_a_jump():
+    """Box bottom rises but the box gets shorter -> occlusion, not a jump."""
+    cam = cam0()
+    fps, T = 25.0, 100
+    xy = np.tile([[12.0, 4.0]], (T, 1)); z = np.zeros(T)
+    n = 16; tau = np.arange(1, n) / n
+    z[40:40 + n - 1] = 4 * 0.5 * tau * (1 - tau)
+    uv = cam.project(np.c_[xy, z])
+    H = np.tile(cam.H, (T, 1, 1))
+    P, _, _ = cameras_from_h(H, cam.size)
+    head = cam.project(np.c_[xy, np.full(T, 1.8)])
+    box_h = head[:, 1] * 0 + np.abs(head[:, 1] - uv[:, 1])           # head fixed, feet "rise"
+    assert len(detect_jumps(uv, np.linalg.inv(H), P, fps, box_h=box_h)[3]) == 0
+    assert len(detect_jumps(uv, np.linalg.inv(H), P, fps, box_h=np.full(T, 100.0))[3]) == 1

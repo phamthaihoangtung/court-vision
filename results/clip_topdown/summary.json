@@ -1,0 +1,700 @@
+{
+ "clip": "20218291-hd_1920_1080_50fps",
+ "source": {
+  "width": 1280,
+  "height": 720,
+  "fps": 50.0,
+  "frames": 1500
+ },
+ "processed": {
+  "frames": 300,
+  "fps": 25.0,
+  "stride": 2,
+  "device": "cpu",
+  "weights": "yolo11n.pt"
+ },
+ "court": {
+  "template": "indoor",
+  "frames_ok_pct": 100.0,
+  "coverage_mean": 0.9547987030049707,
+  "redetections": 1,
+  "rms_px_mean": 1.008770434772825,
+  "corner_motion_px_per_frame_raw": 0.35471024060623657,
+  "corner_motion_px_per_frame_smoothed": 0.12347036628291062,
+  "bootstrap_corner_sigma_px": 0.14238884172074392
+ },
+ "camera": {
+  "focal_px": 903.9021135202163,
+  "focal_observability": 47682.63188129166
+ },
+ "lens": {
+  "mode": "auto",
+  "lambda": 0.0,
+  "applied": false,
+  "lambda_est": 0.007948271282789859,
+  "rms_before_px": 0.34031832648322335,
+  "rms_after_px": 0.33445518944492203,
+  "chains": 10,
+  "inliers": 10
+ },
+ "teams": {
+  "method": "side+colour",
+  "colour_separation": 216.03578423364135,
+  "colour_side_agreement": 1.0
+ },
+ "tracks": {
+  "raw_ids": 32,
+  "players": 12,
+  "stitched_fragments": 5
+ },
+ "players": [
+  {
+   "label": "A1",
+   "team": "A",
+   "duration_s": 11.96,
+   "observed_frac": 0.98,
+   "distance_m": 3.581306901268941,
+   "distance_m_lo": 3.47307849642789,
+   "distance_m_hi": 3.668206399203177,
+   "top_speed_ms": 1.3099423238419787,
+   "top_speed_ms_lo": 1.3006476125635857,
+   "top_speed_ms_hi": 1.3250207247874242,
+   "avg_speed_ms": 0.2994403763602793,
+   "avg_speed_ms_lo": 0.2903911786310945,
+   "avg_speed_ms_hi": 0.306706220669162,
+   "front_row_frac": 1.0,
+   "front_row_frac_lo": 1.0,
+   "front_row_frac_hi": 1.0,
+   "n_jumps": 1,
+   "max_jump_cm": 54.853322845283905,
+   "max_jump_sigma_cm": 9.975658131240571,
+   "avg_jump_cm": 54.853322845283905,
+   "avg_jump_sigma_cm": 9.975658131240571,
+   "back_row_frac": 0.0,
+   "jumps": [
+    {
+     "f0": 139,
+     "f1": 153,
+     "f_peak": 146,
+     "height_m": 0.548533228452839,
+     "sigma_m": 0.09975658131240571,
+     "height_ballistic_m": 0.38455200000000006,
+     "flight_s": 0.56,
+     "px_per_m": 21.32097004706221,
+     "observability_k": 0.5362415592343263,
+     "xy": [
+      8.619475931166058,
+      1.4792182227991617
+     ],
+     "t_s": 5.84
+    }
+   ]
+  },
+  {
+   "label": "A2",
+   "team": "A",
+   "duration_s": 11.52,
+   "observed_frac": 0.986159169550173,
+   "distance_m": 11.741827867160255,
+   "distance_m_lo": 11.515526982513899,
+   "distance_m_hi": 12.007956724385352,
+   "top_speed_ms": 3.065547895451492,
+   "top_speed_ms_lo": 3.030055361685115,
+   "top_speed_ms_hi": 3.096753956807309,
+   "avg_speed_ms": 1.01925589124655,
+   "avg_speed_ms_lo": 0.9996117172321095,
+   "avg_speed_ms_hi": 1.0423573545473395,
+   "front_row_frac": 0.0,
+   "front_row_frac_lo": 0.0,
+   "front_row_frac_hi": 0.0,
+   "n_jumps": 1,
+   "max_jump_cm": 47.40806565942506,
+   "max_jump_sigma_cm": 8.053216140578035,
+   "avg_jump_cm": 47.40806565942506,
+   "avg_jump_sigma_cm": 8.053216140578035,
+   "back_row_frac": 1.0,
+   "jumps": [
+    {
+     "f0": 28,
+     "f1": 42,
+     "f_peak": 35,
+     "height_m": 0.47408065659425064,
+     "sigma_m": 0.08053216140578036,
+     "height_ballistic_m": 0.38455200000000006,
+     "flight_s": 0.56,
+     "px_per_m": 27.150973523023335,
+     "observability_k": 0.7822535292458417,
+     "xy": [
+      -0.5486020113167519,
+      2.786428754829491
+     ],
+     "t_s": 1.4000000000000001
+    }
+   ]
+  },
+  {
+   "label": "A3",
+   "team": "A",
+   "duration_s": 11.96,
+   "observed_frac": 1.0,
+   "distance_m": 2.251812549707595,
+   "distance_m_lo": 2.185934760815176,
+   "distance_m_hi": 2.3069204158980363,
+   "top_speed_ms": 0.7967489500378254,
+   "top_speed_ms_lo": 0.7746563412201326,
+   "top_speed_ms_hi": 0.8113553341231031,
+   "avg_speed_ms": 0.18827864127989924,
+   "avg_speed_ms_lo": 0.18277046495110164,
+   "avg_speed_ms_hi": 0.19288632239950138,
+   "front_row_frac": 1.0,
+   "front_row_frac_lo": 1.0,
+   "front_row_frac_hi": 1.0,
+   "n_jumps": 0,
+   "max_jump_cm": 0.0,
+   "max_jump_sigma_cm": 0.0,
+   "avg_jump_cm": 0.0,
+   "avg_jump_sigma_cm": 0.0,
+   "back_row_frac": 0.0,
+   "jumps": []
+  },
+  {
+   "label": "A4",
+   "team": "A",
+   "duration_s": 11.68,
+   "observed_frac": 0.9897610921501706,
+   "distance_m": 7.427667380450115,
+   "distance_m_lo": 7.2641182840730485,
+   "distance_m_hi": 7.613272098989685,
+   "top_speed_ms": 1.6510712648708301,
+   "top_speed_ms_lo": 1.6292941878592266,
+   "top_speed_ms_hi": 1.6989370563034156,
+   "avg_speed_ms": 0.6359304264084004,
+   "avg_speed_ms_lo": 0.6219279352802268,
+   "avg_speed_ms_hi": 0.6518212413518567,
+   "front_row_frac": 0.0,
+   "front_row_frac_lo": 0.0,
+   "front_row_frac_hi": 0.0,
+   "n_jumps": 3,
+   "max_jump_cm": 32.61908244140357,
+   "max_jump_sigma_cm": 11.15062316643949,
+   "avg_jump_cm": 31.512459688671623,
+   "avg_jump_sigma_cm": 7.161444404434516,
+   "back_row_frac": 1.0,
+   "jumps": [
+    {
+     "f0": 15,
+     "f1": 27,
+     "f_peak": 21,
+     "height_m": 0.3261908244140357,
+     "sigma_m": 0.1115062316643949,
+     "height_ballistic_m": 0.282528,
+     "flight_s": 0.48,
+     "px_per_m": 24.533392007136648,
+     "observability_k": 0.7117934188823631,
+     "xy": [
+      3.7299476114625656,
+      3.7504444859586554
+     ],
+     "t_s": 0.84
+    },
+    {
+     "f0": 85,
+     "f1": 96,
+     "f_peak": 90,
+     "height_m": 0.3020140116880102,
+     "sigma_m": 0.1353474403861905,
+     "height_ballistic_m": 0.237402,
+     "flight_s": 0.44,
+     "px_per_m": 23.248579060909357,
+     "observability_k": 0.634472385727871,
+     "xy": [
+      4.974468243062567,
+      2.5898344426122373
+     ],
+     "t_s": 3.6
+    },
+    {
+     "f0": 112,
+     "f1": 122,
+     "f_peak": 117,
+     "height_m": 0.31716895455810296,
+     "sigma_m": 0.12411723507611139,
+     "height_ballistic_m": 0.19620000000000004,
+     "flight_s": 0.4,
+     "px_per_m": 23.91858139065422,
+     "observability_k": 0.6896507928468811,
+     "xy": [
+      4.8178474057755185,
+      3.722299091749621
+     ],
+     "t_s": 4.68
+    }
+   ]
+  },
+  {
+   "label": "A5",
+   "team": "A",
+   "duration_s": 11.96,
+   "observed_frac": 0.83,
+   "distance_m": 6.462320605466763,
+   "distance_m_lo": 6.315253717305057,
+   "distance_m_hi": 6.593988393252903,
+   "top_speed_ms": 2.937563978292046,
+   "top_speed_ms_lo": 2.9264395048299905,
+   "top_speed_ms_hi": 2.9497714493767124,
+   "avg_speed_ms": 0.5403278098216356,
+   "avg_speed_ms_lo": 0.5280312472663091,
+   "avg_speed_ms_hi": 0.5513368221783363,
+   "front_row_frac": 0.86,
+   "front_row_frac_lo": 0.8566666666666667,
+   "front_row_frac_hi": 0.8641666666666666,
+   "n_jumps": 0,
+   "max_jump_cm": 0.0,
+   "max_jump_sigma_cm": 0.0,
+   "avg_jump_cm": 0.0,
+   "avg_jump_sigma_cm": 0.0,
+   "back_row_frac": 0.14,
+   "jumps": []
+  },
+  {
+   "label": "A6",
+   "team": "A",
+   "duration_s": 7.640000000000001,
+   "observed_frac": 0.8802083333333334,
+   "distance_m": 5.794479020473657,
+   "distance_m_lo": 5.667836095638136,
+   "distance_m_hi": 5.922540493671096,
+   "top_speed_ms": 2.525064690877736,
+   "top_speed_ms_lo": 2.4772044218251574,
+   "top_speed_ms_hi": 2.582848034093973,
+   "avg_speed_ms": 0.7584396623656618,
+   "avg_speed_ms_lo": 0.7418633633034207,
+   "avg_speed_ms_hi": 0.7752016352972638,
+   "front_row_frac": 0.0,
+   "front_row_frac_lo": 0.0,
+   "front_row_frac_hi": 0.0,
+   "n_jumps": 0,
+   "max_jump_cm": 0.0,
+   "max_jump_sigma_cm": 0.0,
+   "avg_jump_cm": 0.0,
+   "avg_jump_sigma_cm": 0.0,
+   "back_row_frac": 1.0,
+   "jumps": []
+  },
+  {
+   "label": "B1",
+   "team": "B",
+   "duration_s": 11.64,
+   "observed_frac": 0.976027397260274,
+   "distance_m": 13.31941683619839,
+   "distance_m_lo": 12.98132547140055,
+   "distance_m_hi": 13.589294230980311,
+   "top_speed_ms": 2.8418164202031715,
+   "top_speed_ms_lo": 2.81835819684777,
+   "top_speed_ms_hi": 2.885916942347458,
+   "avg_speed_ms": 1.1442797969242602,
+   "avg_speed_ms_lo": 1.1152341470275389,
+   "avg_speed_ms_hi": 1.1674651401185834,
+   "front_row_frac": 0.613013698630137,
+   "front_row_frac_lo": 0.6087328767123288,
+   "front_row_frac_hi": 0.6172945205479452,
+   "n_jumps": 4,
+   "max_jump_cm": 71.44546836920661,
+   "max_jump_sigma_cm": 16.923051080597105,
+   "avg_jump_cm": 36.08567690160409,
+   "avg_jump_sigma_cm": 6.0140192113477084,
+   "back_row_frac": 0.386986301369863,
+   "jumps": [
+    {
+     "f0": 134,
+     "f1": 149,
+     "f_peak": 141,
+     "height_m": 0.7144546836920661,
+     "sigma_m": 0.16923051080597104,
+     "height_ballistic_m": 0.44145,
+     "flight_s": 0.6,
+     "px_per_m": 20.799045996239983,
+     "observability_k": 0.5056418712538471,
+     "xy": [
+      10.150836421650014,
+      0.7126336996274099
+     ],
+     "t_s": 5.64
+    },
+    {
+     "f0": 180,
+     "f1": 190,
+     "f_peak": 185,
+     "height_m": 0.3091261152207933,
+     "sigma_m": 0.10092213936572063,
+     "height_ballistic_m": 0.19620000000000004,
+     "flight_s": 0.4,
+     "px_per_m": 22.418403165920154,
+     "observability_k": 0.6067011016346557,
+     "xy": [
+      9.536118346572078,
+      2.6717822851694875
+     ],
+     "t_s": 7.4
+    },
+    {
+     "f0": 198,
+     "f1": 207,
+     "f_peak": 202,
+     "height_m": 0.2190122898567147,
+     "sigma_m": 0.09618216430950409,
+     "height_ballistic_m": 0.158922,
+     "flight_s": 0.36,
+     "px_per_m": 22.95059904337969,
+     "observability_k": 0.6484389095498193,
+     "xy": [
+      10.01493552523302,
+      3.3902365790962783
+     ],
+     "t_s": 8.08
+    },
+    {
+     "f0": 264,
+     "f1": 273,
+     "f_peak": 268,
+     "height_m": 0.20083398729458973,
+     "sigma_m": 0.09896580513526192,
+     "height_ballistic_m": 0.158922,
+     "flight_s": 0.36,
+     "px_per_m": 22.88626498108581,
+     "observability_k": 0.6517834522162932,
+     "xy": [
+      10.989223122516627,
+      3.469614926395222
+     ],
+     "t_s": 10.72
+    }
+   ]
+  },
+  {
+   "label": "B2",
+   "team": "B",
+   "duration_s": 11.96,
+   "observed_frac": 0.5766666666666667,
+   "distance_m": 12.171187833802575,
+   "distance_m_lo": 11.889947034545953,
+   "distance_m_hi": 12.463014971714403,
+   "top_speed_ms": 2.3547233688280165,
+   "top_speed_ms_lo": 2.3290236443067065,
+   "top_speed_ms_hi": 2.3663494241287792,
+   "avg_speed_ms": 1.0176578456356669,
+   "avg_speed_ms_lo": 0.9941427286409659,
+   "avg_speed_ms_hi": 1.0420581080028763,
+   "front_row_frac": 0.49666666666666665,
+   "front_row_frac_lo": 0.45166666666666666,
+   "front_row_frac_hi": 0.5008333333333334,
+   "n_jumps": 2,
+   "max_jump_cm": 64.92216867553789,
+   "max_jump_sigma_cm": 10.15560920504229,
+   "avg_jump_cm": 59.89666817257901,
+   "avg_jump_sigma_cm": 9.655784816108541,
+   "back_row_frac": 0.5033333333333334,
+   "jumps": [
+    {
+     "f0": 44,
+     "f1": 58,
+     "f_peak": 51,
+     "height_m": 0.5487116766962016,
+     "sigma_m": 0.16425599633938157,
+     "height_ballistic_m": 0.38455200000000006,
+     "flight_s": 0.56,
+     "px_per_m": 24.86338073722913,
+     "observability_k": 0.6686976015071439,
+     "xy": [
+      15.5591397627438,
+      1.6109338490694007
+     ],
+     "t_s": 2.04
+    },
+    {
+     "f0": 279,
+     "f1": 297,
+     "f_peak": 288,
+     "height_m": 0.6492216867553788,
+     "sigma_m": 0.1015560920504229,
+     "height_ballistic_m": 0.635688,
+     "flight_s": 0.72,
+     "px_per_m": 24.40853757585066,
+     "observability_k": 0.7879595261924782,
+     "xy": [
+      11.592536052167194,
+      5.969224876797766
+     ],
+     "t_s": 11.52
+    }
+   ]
+  },
+  {
+   "label": "B3",
+   "team": "B",
+   "duration_s": 11.96,
+   "observed_frac": 0.99,
+   "distance_m": 7.2332341864891525,
+   "distance_m_lo": 7.066779208717862,
+   "distance_m_hi": 7.382138647096363,
+   "top_speed_ms": 1.6254039792997301,
+   "top_speed_ms_lo": 1.609807140871169,
+   "top_speed_ms_hi": 1.6523362267110475,
+   "avg_speed_ms": 0.6047854670977552,
+   "avg_speed_ms_lo": 0.5908678268158747,
+   "avg_speed_ms_hi": 0.6172356728341439,
+   "front_row_frac": 0.0,
+   "front_row_frac_lo": 0.0,
+   "front_row_frac_hi": 0.07666666666666666,
+   "n_jumps": 1,
+   "max_jump_cm": 27.552130556980327,
+   "max_jump_sigma_cm": 10.252636064273029,
+   "avg_jump_cm": 27.552130556980327,
+   "avg_jump_sigma_cm": 10.252636064273029,
+   "back_row_frac": 1.0,
+   "jumps": [
+    {
+     "f0": 268,
+     "f1": 279,
+     "f_peak": 273,
+     "height_m": 0.27552130556980325,
+     "sigma_m": 0.10252636064273028,
+     "height_ballistic_m": 0.237402,
+     "flight_s": 0.44,
+     "px_per_m": 24.026425805083115,
+     "observability_k": 0.7127295037616755,
+     "xy": [
+      13.423742110768712,
+      3.9244572624715923
+     ],
+     "t_s": 10.92
+    }
+   ]
+  },
+  {
+   "label": "B4",
+   "team": "B",
+   "duration_s": 8.16,
+   "observed_frac": 0.9512195121951219,
+   "distance_m": 3.5283385016925792,
+   "distance_m_lo": 3.4409857460633924,
+   "distance_m_hi": 3.621184169535642,
+   "top_speed_ms": 1.7076091874714425,
+   "top_speed_ms_lo": 1.690950248740858,
+   "top_speed_ms_hi": 1.7220492159177532,
+   "avg_speed_ms": 0.4323944242270318,
+   "avg_speed_ms_lo": 0.4216894296646315,
+   "avg_speed_ms_hi": 0.4437725697960345,
+   "front_row_frac": 1.0,
+   "front_row_frac_lo": 1.0,
+   "front_row_frac_hi": 1.0,
+   "n_jumps": 1,
+   "max_jump_cm": 43.78142328021069,
+   "max_jump_sigma_cm": 11.126235782093579,
+   "avg_jump_cm": 43.78142328021069,
+   "avg_jump_sigma_cm": 11.126235782093579,
+   "back_row_frac": 0.0,
+   "jumps": [
+    {
+     "f0": 104,
+     "f1": 116,
+     "f_peak": 110,
+     "height_m": 0.43781423280210685,
+     "sigma_m": 0.11126235782093578,
+     "height_ballistic_m": 0.282528,
+     "flight_s": 0.48,
+     "px_per_m": 24.01936117874678,
+     "observability_k": 0.7174527712002052,
+     "xy": [
+      10.865139937742288,
+      4.509918263510665
+     ],
+     "t_s": 4.4
+    }
+   ]
+  },
+  {
+   "label": "B5",
+   "team": "B",
+   "duration_s": 11.96,
+   "observed_frac": 0.8466666666666667,
+   "distance_m": 9.815616967118345,
+   "distance_m_lo": 9.479280151242639,
+   "distance_m_hi": 10.105023871883683,
+   "top_speed_ms": 2.441336251146266,
+   "top_speed_ms_lo": 2.381138079515135,
+   "top_speed_ms_hi": 2.5221265398124357,
+   "avg_speed_ms": 0.8207037597925037,
+   "avg_speed_ms_lo": 0.7925819524450366,
+   "avg_speed_ms_hi": 0.8449016615287359,
+   "front_row_frac": 0.0,
+   "front_row_frac_lo": 0.0,
+   "front_row_frac_hi": 0.0,
+   "n_jumps": 3,
+   "max_jump_cm": 36.52448042023531,
+   "max_jump_sigma_cm": 9.889882992229932,
+   "avg_jump_cm": 31.231465413053645,
+   "avg_jump_sigma_cm": 5.6078402150147495,
+   "back_row_frac": 1.0,
+   "jumps": [
+    {
+     "f0": 29,
+     "f1": 42,
+     "f_peak": 35,
+     "height_m": 0.3360322525174508,
+     "sigma_m": 0.09053338280476071,
+     "height_ballistic_m": 0.33157800000000004,
+     "flight_s": 0.52,
+     "px_per_m": 26.052898779444828,
+     "observability_k": 0.8742229806567374,
+     "xy": [
+      14.197145439484402,
+      6.613230305922704
+     ],
+     "t_s": 1.4000000000000001
+    },
+    {
+     "f0": 189,
+     "f1": 198,
+     "f_peak": 193,
+     "height_m": 0.2356669056718055,
+     "sigma_m": 0.10161600625565725,
+     "height_ballistic_m": 0.158922,
+     "flight_s": 0.36,
+     "px_per_m": 25.10902762167072,
+     "observability_k": 0.8118969399816601,
+     "xy": [
+      13.18559634035031,
+      5.828627412440516
+     ],
+     "t_s": 7.72
+    },
+    {
+     "f0": 210,
+     "f1": 223,
+     "f_peak": 216,
+     "height_m": 0.36524480420235306,
+     "sigma_m": 0.09889882992229933,
+     "height_ballistic_m": 0.33157800000000004,
+     "flight_s": 0.52,
+     "px_per_m": 24.453187279565523,
+     "observability_k": 0.7562805126064017,
+     "xy": [
+      12.892245831318387,
+      4.964464303117393
+     ],
+     "t_s": 8.64
+    }
+   ]
+  },
+  {
+   "label": "B6",
+   "team": "B",
+   "duration_s": 11.96,
+   "observed_frac": 0.9,
+   "distance_m": 6.441110345433321,
+   "distance_m_lo": 6.300597137732877,
+   "distance_m_hi": 6.5780302647864834,
+   "top_speed_ms": 2.652430482523658,
+   "top_speed_ms_lo": 2.6272948655973654,
+   "top_speed_ms_hi": 2.695639282526806,
+   "avg_speed_ms": 0.5385543767084716,
+   "avg_speed_ms_lo": 0.526805780746896,
+   "avg_speed_ms_hi": 0.550002530500542,
+   "front_row_frac": 0.8566666666666667,
+   "front_row_frac_lo": 0.8041666666666666,
+   "front_row_frac_hi": 0.975,
+   "n_jumps": 2,
+   "max_jump_cm": 75.6977420713574,
+   "max_jump_sigma_cm": 10.561381335581421,
+   "avg_jump_cm": 53.74662129746445,
+   "avg_jump_sigma_cm": 8.1808317974469,
+   "back_row_frac": 0.1433333333333333,
+   "jumps": [
+    {
+     "f0": 187,
+     "f1": 199,
+     "f_peak": 193,
+     "height_m": 0.317955005235715,
+     "sigma_m": 0.12496449890945244,
+     "height_ballistic_m": 0.282528,
+     "flight_s": 0.48,
+     "px_per_m": 24.91963913375669,
+     "observability_k": 0.8265063488501911,
+     "xy": [
+      11.263149176618711,
+      6.586290761964969
+     ],
+     "t_s": 7.72
+    },
+    {
+     "f0": 208,
+     "f1": 227,
+     "f_peak": 217,
+     "height_m": 0.756977420713574,
+     "sigma_m": 0.10561381335581421,
+     "height_ballistic_m": 0.7082820000000001,
+     "flight_s": 0.76,
+     "px_per_m": 23.96399796996175,
+     "observability_k": 0.7313542443755757,
+     "xy": [
+      11.55013599621403,
+      4.826899920995226
+     ],
+     "t_s": 8.68
+    }
+   ]
+  }
+ ],
+ "video": "results/clip_topdown/20218291-hd_1920_1080_50fps_annotated.mp4",
+ "timing": {
+  "lens_estimate": {
+   "total_s": 0.1,
+   "calls": 1,
+   "ms_per_frame": 99.91,
+   "fps": 10.01
+  },
+  "decode": {
+   "total_s": 0.265,
+   "calls": 300,
+   "ms_per_frame": 0.88,
+   "fps": 1133.74
+  },
+  "court_registration": {
+   "total_s": 16.29,
+   "calls": 300,
+   "ms_per_frame": 54.3,
+   "fps": 18.42
+  },
+  "detect_track": {
+   "total_s": 41.22,
+   "calls": 300,
+   "ms_per_frame": 137.4,
+   "fps": 7.28
+  },
+  "analysis": {
+   "total_s": 1.575,
+   "calls": 300,
+   "ms_per_frame": 5.25,
+   "fps": 190.48
+  },
+  "stat_cards": {
+   "total_s": 2.636,
+   "calls": 12,
+   "ms_per_frame": 219.67,
+   "fps": 4.55
+  },
+  "render": {
+   "total_s": 5.436,
+   "calls": 300,
+   "ms_per_frame": 18.12,
+   "fps": 55.19
+  },
+  "encode": {
+   "total_s": 3.108,
+   "calls": 300,
+   "ms_per_frame": 10.36,
+   "fps": 96.53
+  }
+ }
+}
