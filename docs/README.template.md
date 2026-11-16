@@ -229,7 +229,7 @@ I build computer-vision pipelines like this one for sports clubs, venues and pro
 player tracking and statistics from your footage, camera calibration and top-down views, and
 deployment on edge devices next to your cameras.
 
-- Upwork: <<UPWORK_PROFILE_URL>>
+- Upwork: https://www.upwork.com/freelancers/tungpth
 - GitHub: https://github.com/phamthaihoangtung
 
 Send a 30-second sample clip and I will tell you what accuracy to expect before you commit.
