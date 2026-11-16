@@ -13,6 +13,7 @@ re-registered on every frame (the drone drifts), and every player is tracked on 
 | Best frame | Match summary card |
 |---|---|
 | ![best frame](assets/best_frame.png) | ![summary](assets/card_summary.png) |
+| ![diagonal view](assets/best_frame_diagonal.png) | ![player card](assets/card_player.png) |
 
 ## What it does
 
@@ -122,22 +123,22 @@ YOLO detector or ID switches.
 
 | Scenario | Court found | Reproj. median (cm) | Reproj. p90 (cm) | Position RMSE (cm) | Distance err | Truth in 90% band | Top-speed err (m/s) | Jump recall | Jump precision | Jump MAE (cm) | Flight-time MAE (cm) |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| baseline (clutter, coloured other-sport lines) | 100% of 24 | 0.5 | 0.8 | 6.1 | 1.1% | 91% | 0.10 | 54% | 86% | 6.2 | 6.9 |
-| no clutter | 100% of 24 | 0.4 | 0.8 | 6.1 | 1.0% | 92% | 0.10 | 56% | 88% | 6.2 | 7.0 |
-| clutter, ALL lines white (worst case) | 62% of 24 | 1.1 | 1.8 | 6.3 | 1.1% | 90% | 0.11 | 57% | 84% | 6.7 | 7.6 |
-| foot noise 0.5 px | 100% of 24 | 0.5 | 0.8 | 5.6 | 1.0% | 93% | 0.10 | 54% | 98% | 5.3 | 5.3 |
-| foot noise 3 px | 100% of 24 | 0.5 | 0.8 | 8.0 | 1.1% | 88% | 0.13 | 47% | 70% | 7.1 | 9.1 |
-| foot noise 5 px | 100% of 24 | 0.5 | 0.8 | 10.3 | 1.1% | 94% | 0.13 | 31% | 68% | 10.0 | 11.5 |
-| low camera (elev 20 deg) | 100% of 24 | 2.5 | 3.8 | 7.9 | 1.0% | 91% | 0.11 | 79% | 99% | 4.6 | 4.4 |
-| high camera (elev 65 deg) | 100% of 24 | 0.2 | 0.5 | 6.4 | 1.1% | 88% | 0.11 | 18% | 50% | 13.3 | 20.7 |
-| occlusion gaps x3 | 100% of 24 | 0.5 | 0.8 | 8.5 | 1.5% | 77% | 0.12 | 41% | 83% | 6.8 | 7.0 |
-| aggressive movement (accel up to 8 m/s^2) | 100% of 24 | 0.5 | 0.8 | 10.5 | 3.7% | 22% | 0.15 | 54% | 55% | 5.8 | 6.4 |
-| mid camera (elev 45 deg) | 100% of 24 | 0.4 | 0.9 | 6.1 | 1.1% | 90% | 0.11 | 58% | 89% | 5.3 | 5.8 |
-| barrel distortion lam=-0.10, corrected | 100% of 24 | 0.9 | 1.4 | 6.1 | 1.0% | 92% | 0.11 | 55% | 85% | 6.3 | 6.9 |
-| barrel distortion lam=-0.25, corrected | 100% of 24 | 1.0 | 2.0 | 6.2 | 1.0% | 93% | 0.11 | 54% | 86% | 6.0 | 6.6 |
-| barrel distortion lam=-0.10, NOT corrected | 100% of 24 | 10.8 | 20.8 | 11.3 | 0.9% | 94% | 0.13 | 56% | 48% | 7.8 | 8.0 |
-| heavy image noise (sigma 15) | 100% of 24 | 0.3 | 0.5 | 6.1 | 1.0% | 90% | 0.10 | 54% | 88% | 6.1 | 6.9 |
-| beach court (4 lines only) | 100% of 24 | 0.6 | 1.0 | 6.4 | 1.2% | 87% | 0.10 | 61% | 83% | 5.7 | 6.0 |
+| baseline (clutter, coloured other-sport lines) | 100% of 24 | 0.5 | 0.8 | 6.1 | 1.1% | 91% | 0.10 | 53% | 90% | 5.8 | 6.6 |
+| no clutter | 100% of 24 | 0.4 | 0.8 | 6.1 | 1.0% | 91% | 0.10 | 54% | 90% | 5.8 | 6.7 |
+| clutter, ALL lines white (worst case) | 62% of 24 | 1.1 | 1.8 | 6.3 | 1.1% | 91% | 0.11 | 54% | 88% | 6.2 | 7.1 |
+| foot noise 0.5 px | 100% of 24 | 0.5 | 0.8 | 5.6 | 1.0% | 93% | 0.10 | 51% | 97% | 4.8 | 4.6 |
+| foot noise 3 px | 100% of 24 | 0.5 | 0.8 | 8.1 | 1.2% | 86% | 0.13 | 48% | 71% | 7.2 | 9.1 |
+| foot noise 5 px | 100% of 24 | 0.5 | 0.8 | 10.4 | 1.1% | 91% | 0.14 | 32% | 65% | 10.2 | 11.9 |
+| low camera (elev 20 deg) | 100% of 24 | 2.5 | 3.8 | 7.9 | 1.0% | 91% | 0.11 | 77% | 99% | 4.4 | 4.2 |
+| high camera (elev 65 deg) | 100% of 24 | 0.2 | 0.5 | 6.4 | 1.1% | 86% | 0.11 | 16% | 55% | 13.8 | 21.3 |
+| occlusion gaps x3 | 100% of 24 | 0.5 | 0.8 | 8.5 | 1.5% | 77% | 0.12 | 39% | 87% | 6.4 | 6.7 |
+| aggressive movement (accel up to 8 m/s^2) | 100% of 24 | 0.5 | 0.8 | 10.5 | 3.6% | 22% | 0.16 | 51% | 56% | 5.8 | 6.3 |
+| mid camera (elev 45 deg) | 100% of 24 | 0.4 | 0.9 | 6.1 | 1.1% | 89% | 0.11 | 56% | 93% | 5.3 | 5.6 |
+| barrel distortion lam=-0.10, corrected | 100% of 24 | 0.9 | 1.4 | 6.1 | 1.0% | 93% | 0.10 | 51% | 90% | 5.8 | 6.4 |
+| barrel distortion lam=-0.25, corrected | 100% of 24 | 1.0 | 2.0 | 6.1 | 1.0% | 93% | 0.10 | 53% | 90% | 6.0 | 6.7 |
+| barrel distortion lam=-0.10, NOT corrected | 100% of 24 | 10.8 | 20.8 | 11.3 | 0.8% | 93% | 0.13 | 54% | 56% | 7.9 | 8.0 |
+| heavy image noise (sigma 15) | 100% of 24 | 0.3 | 0.5 | 6.0 | 1.0% | 91% | 0.10 | 53% | 91% | 5.9 | 6.7 |
+| beach court (4 lines only) | 100% of 24 | 0.6 | 1.0 | 6.4 | 1.2% | 88% | 0.10 | 58% | 87% | 5.6 | 5.9 |
 
 How to read it:
 
@@ -148,20 +149,20 @@ How to read it:
 What the sweep shows:
 
 - **Court registration** finds the court in every baseline scene with about half a centimetre of
-  median error, including with basketball and badminton lines in other colours, heavy image noise
-  and the 4-line beach court. The weak case is a hall where every sport's lines are white: 62%.
+  median error. That holds with basketball and badminton lines in other colours, with heavy image
+  noise, and on the 4-line beach court. The weak case is a hall where every sport's lines are
+  white.
 - **Distance and speed** are within about 1% and 0.1 m/s. Very abrupt movement (8 m/s^2) raises
-  the distance error to 3.7% and the 90% band then contains the truth only 22% of the time,
-  because the smoother cuts corners.
+  the distance error to about 4%, and the 90% band then rarely contains the truth, because the
+  smoother cuts corners. The bands assume normal movement.
 - **Lens**: uncorrected barrel distortion of -0.10 costs about 11 cm of court error; the
   plumb-line correction brings it back to about 1 cm.
-- **Jumps** are the weakest output. With the conservative default thresholds, precision is 86%
-  and recall 54% at baseline (height error about 6 cm), 99% / 79% from a low camera, and 50% / 18%
-  from a steep 65-degree camera. Missed jumps are mostly the small ones (20-30 cm).
-- **Known defect on real footage**: jump counts on the near-overhead clip (`topdown`, 18 jumps up
-  to 76 cm) and for one player in the `diagonal` clip (7 jumps) are not credible. From overhead the
-  focal length cannot be recovered from the court plane, so the observability gate is computed from
-  a wrong camera. Treat jump output as experimental unless the camera is low and oblique.
+- **Jumps** are the weakest output. Precision is high and recall is moderate: small jumps
+  (20-30 cm) are the ones missed. A low, oblique camera sees jumps well. A steep camera (65
+  degrees) cannot separate a jump from a quick step, and most jumps there are dropped rather than
+  guessed.
+- These synthetic detections have clean boxes. Real boxes also change with posture and occlusion,
+  which is why jump precision on real footage is lower (see Limitations).
 
 ### Real footage
 
@@ -176,22 +177,21 @@ End-line clip (the demo above):
 | Player | Tracked (s) | Distance (m) | 90% band | Top speed (km/h) | Avg speed (km/h) | Jumps | Max jump (cm) | Front row |
 |---|---|---|---|---|---|---|---|---|
 | A1 | 24.9 | 8.0 | 7.8-8.2 | 3.9 | 1.2 | 0 | - | 100% |
-| A2 | 25.4 | 13.7 | 13.3-14.1 | 7.1 | 1.9 | 1 | 20 ± 9 | 0% |
-| A3 | 25.4 | 2.8 | 2.7-2.8 | 2.4 | 0.4 | 0 | - | 0% |
-| A4 | 25.4 | 13.8 | 13.4-14.2 | 8.8 | 2.0 | 1 | 31 ± 14 | 100% |
-| A5 | 25.4 | 24.3 | 23.6-25.1 | 16.1 | 3.4 | 1 | 18 ± 7 | 23% |
-| A6 | 25.4 | 17.7 | 17.3-18.1 | 10.4 | 2.5 | 2 | 52 ± 11 | 16% |
-| B1 | 25.4 | 3.9 | 3.9-4.0 | 4.0 | 0.6 | 0 | - | 0% |
+| A2 | 25.4 | 13.8 | 13.4-14.2 | 7.1 | 2.0 | 0 | - | 0% |
+| A3 | 25.4 | 2.8 | 2.7-2.9 | 2.4 | 0.4 | 0 | - | 0% |
+| A4 | 25.4 | 13.2 | 12.9-13.6 | 8.8 | 1.9 | 0 | - | 100% |
+| A5 | 25.4 | 24.3 | 23.7-24.8 | 16.1 | 3.4 | 1 | 18 ± 8 | 23% |
+| A6 | 25.4 | 19.1 | 18.6-19.5 | 13.4 | 2.7 | 0 | - | 16% |
+| B1 | 25.4 | 3.9 | 3.8-4.0 | 4.0 | 0.6 | 0 | - | 0% |
 | B2 | 25.4 | 7.0 | 6.9-7.2 | 2.5 | 1.0 | 0 | - | 100% |
-| B3 | 25.4 | 20.2 | 19.8-20.7 | 10.3 | 2.9 | 0 | - | 0% |
+| B3 | 25.4 | 21.4 | 21.0-21.8 | 11.5 | 3.0 | 0 | - | 0% |
 | B4 | 17.4 | 5.5 | 5.3-5.6 | 3.6 | 1.1 | 0 | - | 100% |
-| B5 | 25.4 | 11.3 | 11.0-11.6 | 4.3 | 1.6 | 0 | - | 81% |
-| B6 | 25.4 | 9.8 | 9.6-10.0 | 4.8 | 1.4 | 0 | - | 0% |
+| B5 | 25.4 | 11.3 | 11.1-11.6 | 4.3 | 1.6 | 0 | - | 81% |
+| B6 | 25.4 | 9.8 | 9.6-10.0 | 4.9 | 1.4 | 0 | - | 0% |
 
 There is no ground truth for the real clips, so these numbers are plausibility-checked only
-(overlay alignment by eye, speeds in a human range). Jump heights on real footage are the least
-trustworthy output: box bottoms move when legs are occluded, and only an occlusion check on box
-height guards against that.
+(overlay alignment by eye, speeds in a human range). Jumps were checked by eye against the
+frames: see the jump section under Limitations.
 
 ### Speed
 
@@ -221,8 +221,13 @@ bottleneck on CPU and the stage that moves to the GPU.
 - Jump height needs an oblique view. From a height `Cz` at horizontal distance `rho`, a jump of `z`
   moves the apparent ground point by `z*rho/Cz`; under a steep camera this is indistinguishable
   from a quick step, and such jumps are dropped rather than reported.
-- Foot points come from box bottoms (or ankles with `--pose`); legs hidden behind the net shift
-  them.
+- **Jumps on real footage are conservative and still imperfect.** Foot points come from box
+  bottoms (or ankles with `--pose`), and box bottoms also move when a player crouches, bends, or
+  has their legs hidden by the net. Three checks reject those cases: the box must not shrink, the
+  box top must rise with the feet, and the bump must be large compared with posture jitter. On the
+  three demo clips this cut detections from 25 to 6. By eye, 3 of the 6 are real actions (a block,
+  a jump serve, a jump set), and some real blocks at the net are missed. Treat per-player jump
+  counts as indicative, not as a stat to publish.
 - Player labels are per clip. No jersey numbers, no ball tracking.
 - Uncertainty bands cover calibration, foot bias and tracker jitter; they do not cover identity
   switches.

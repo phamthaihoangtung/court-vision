@@ -1,15 +1,15 @@
 - **Court registration** finds the court in every baseline scene with about half a centimetre of
-  median error, including with basketball and badminton lines in other colours, heavy image noise
-  and the 4-line beach court. The weak case is a hall where every sport's lines are white: 62%.
+  median error. That holds with basketball and badminton lines in other colours, with heavy image
+  noise, and on the 4-line beach court. The weak case is a hall where every sport's lines are
+  white.
 - **Distance and speed** are within about 1% and 0.1 m/s. Very abrupt movement (8 m/s^2) raises
-  the distance error to 3.7% and the 90% band then contains the truth only 22% of the time,
-  because the smoother cuts corners.
+  the distance error to about 4%, and the 90% band then rarely contains the truth, because the
+  smoother cuts corners. The bands assume normal movement.
 - **Lens**: uncorrected barrel distortion of -0.10 costs about 11 cm of court error; the
   plumb-line correction brings it back to about 1 cm.
-- **Jumps** are the weakest output. With the conservative default thresholds, precision is 86%
-  and recall 54% at baseline (height error about 6 cm), 99% / 79% from a low camera, and 50% / 18%
-  from a steep 65-degree camera. Missed jumps are mostly the small ones (20-30 cm).
-- **Known defect on real footage**: jump counts on the near-overhead clip (`topdown`, 18 jumps up
-  to 76 cm) and for one player in the `diagonal` clip (7 jumps) are not credible. From overhead the
-  focal length cannot be recovered from the court plane, so the observability gate is computed from
-  a wrong camera. Treat jump output as experimental unless the camera is low and oblique.
+- **Jumps** are the weakest output. Precision is high and recall is moderate: small jumps
+  (20-30 cm) are the ones missed. A low, oblique camera sees jumps well. A steep camera (65
+  degrees) cannot separate a jump from a quick step, and most jumps there are dropped rather than
+  guessed.
+- These synthetic detections have clean boxes. Real boxes also change with posture and occlusion,
+  which is why jump precision on real footage is lower (see Limitations).

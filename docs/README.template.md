@@ -13,6 +13,7 @@ re-registered on every frame (the drone drifts), and every player is tracked on 
 | Best frame | Match summary card |
 |---|---|
 | ![best frame](assets/best_frame.png) | ![summary](assets/card_summary.png) |
+| ![diagonal view](assets/best_frame_diagonal.png) | ![player card](assets/card_player.png) |
 
 ## What it does
 
@@ -137,9 +138,8 @@ What the sweep shows:
 <<CLIP>>
 
 There is no ground truth for the real clips, so these numbers are plausibility-checked only
-(overlay alignment by eye, speeds in a human range). Jump heights on real footage are the least
-trustworthy output: box bottoms move when legs are occluded, and only an occlusion check on box
-height guards against that.
+(overlay alignment by eye, speeds in a human range). Jumps were checked by eye against the
+frames: see the jump section under Limitations.
 
 ### Speed
 
@@ -157,8 +157,13 @@ bottleneck on CPU and the stage that moves to the GPU.
 - Jump height needs an oblique view. From a height `Cz` at horizontal distance `rho`, a jump of `z`
   moves the apparent ground point by `z*rho/Cz`; under a steep camera this is indistinguishable
   from a quick step, and such jumps are dropped rather than reported.
-- Foot points come from box bottoms (or ankles with `--pose`); legs hidden behind the net shift
-  them.
+- **Jumps on real footage are conservative and still imperfect.** Foot points come from box
+  bottoms (or ankles with `--pose`), and box bottoms also move when a player crouches, bends, or
+  has their legs hidden by the net. Three checks reject those cases: the box must not shrink, the
+  box top must rise with the feet, and the bump must be large compared with posture jitter. On the
+  three demo clips this cut detections from 25 to 6. By eye, 3 of the 6 are real actions (a block,
+  a jump serve, a jump set), and some real blocks at the net are missed. Treat per-player jump
+  counts as indicative, not as a stat to publish.
 - Player labels are per clip. No jersey numbers, no ball tracking.
 - Uncertainty bands cover calibration, foot bias and tracker jitter; they do not cover identity
   switches.

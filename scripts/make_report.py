@@ -36,6 +36,10 @@ for d in sorted(glob.glob(f"{R}/clip_*")):
         shutil.copy(glob.glob(f"{d}/*_demo.gif")[0], "assets/demo.gif")
         shutil.copy(f"{d}/best_frame.png", "assets/best_frame.png")
         shutil.copy(f"{d}/cards/summary.png", "assets/card_summary.png")
+        top = max(s["players"], key=lambda q: q["distance_m"])["label"]
+        shutil.copy(f"{d}/cards/player_{top}.png", "assets/card_player.png")
+    if tag == "diagonal":
+        shutil.copy(f"{d}/best_frame.png", "assets/best_frame_diagonal.png")
 if os.path.exists(f"{R}/benchmark_cpu.json"):
     b = json.load(open(f"{R}/benchmark_cpu.json"))
     out += [f"## Benchmark ({b['device']}: {b['hardware']})", "", "| Stage | ms / frame | FPS |", "|---|---|---|"]

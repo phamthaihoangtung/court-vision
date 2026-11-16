@@ -1,17 +1,17 @@
-baseline (clutter, coloured other-sport lines)   court ok 100.0%  reproj   0.5 cm  dist err  1.1%  vtop err 0.10 m/s  jump MAE  6.2 cm  recall  54%  prec  86%
-no clutter                                       court ok 100.0%  reproj   0.4 cm  dist err  1.0%  vtop err 0.10 m/s  jump MAE  6.2 cm  recall  56%  prec  88%
-clutter, ALL lines white (worst case)            court ok  62.5%  reproj   1.1 cm  dist err  1.1%  vtop err 0.11 m/s  jump MAE  6.7 cm  recall  57%  prec  84%
-foot noise 0.5 px                                court ok 100.0%  reproj   0.5 cm  dist err  1.0%  vtop err 0.10 m/s  jump MAE  5.3 cm  recall  54%  prec  98%
-foot noise 3 px                                  court ok 100.0%  reproj   0.5 cm  dist err  1.1%  vtop err 0.13 m/s  jump MAE  7.1 cm  recall  47%  prec  70%
-foot noise 5 px                                  court ok 100.0%  reproj   0.5 cm  dist err  1.1%  vtop err 0.13 m/s  jump MAE 10.0 cm  recall  31%  prec  68%
-low camera (elev 20 deg)                         court ok 100.0%  reproj   2.5 cm  dist err  1.0%  vtop err 0.11 m/s  jump MAE  4.6 cm  recall  79%  prec  99%
-high camera (elev 65 deg)                        court ok 100.0%  reproj   0.2 cm  dist err  1.1%  vtop err 0.11 m/s  jump MAE 13.3 cm  recall  18%  prec  50%
-occlusion gaps x3                                court ok 100.0%  reproj   0.5 cm  dist err  1.5%  vtop err 0.12 m/s  jump MAE  6.8 cm  recall  41%  prec  83%
-aggressive movement (accel up to 8 m/s^2)        court ok 100.0%  reproj   0.5 cm  dist err  3.7%  vtop err 0.15 m/s  jump MAE  5.8 cm  recall  54%  prec  55%
-mid camera (elev 45 deg)                         court ok 100.0%  reproj   0.4 cm  dist err  1.1%  vtop err 0.11 m/s  jump MAE  5.3 cm  recall  58%  prec  89%
-barrel distortion lam=-0.10, corrected           court ok 100.0%  reproj   0.9 cm  dist err  1.0%  vtop err 0.11 m/s  jump MAE  6.3 cm  recall  55%  prec  85%
-barrel distortion lam=-0.25, corrected           court ok 100.0%  reproj   1.0 cm  dist err  1.0%  vtop err 0.11 m/s  jump MAE  6.0 cm  recall  54%  prec  86%
-barrel distortion lam=-0.10, NOT corrected       court ok 100.0%  reproj  10.8 cm  dist err  0.9%  vtop err 0.13 m/s  jump MAE  7.8 cm  recall  56%  prec  48%
-heavy image noise (sigma 15)                     court ok 100.0%  reproj   0.3 cm  dist err  1.0%  vtop err 0.10 m/s  jump MAE  6.1 cm  recall  54%  prec  88%
-beach court (4 lines only)                       court ok 100.0%  reproj   0.6 cm  dist err  1.2%  vtop err 0.10 m/s  jump MAE  5.7 cm  recall  61%  prec  83%
-wrote results/validation.json in 198s
+baseline (clutter, coloured other-sport lines)   court ok 100.0%  reproj   0.5 cm  dist err  1.1%  vtop err 0.10 m/s  jump MAE  5.8 cm  recall  53%  prec  90%
+no clutter                                       court ok 100.0%  reproj   0.4 cm  dist err  1.0%  vtop err 0.10 m/s  jump MAE  5.8 cm  recall  54%  prec  90%
+clutter, ALL lines white (worst case)            court ok  62.5%  reproj   1.1 cm  dist err  1.1%  vtop err 0.11 m/s  jump MAE  6.2 cm  recall  54%  prec  88%
+foot noise 0.5 px                                court ok 100.0%  reproj   0.5 cm  dist err  1.0%  vtop err 0.10 m/s  jump MAE  4.8 cm  recall  51%  prec  97%
+foot noise 3 px                                  court ok 100.0%  reproj   0.5 cm  dist err  1.2%  vtop err 0.13 m/s  jump MAE  7.2 cm  recall  48%  prec  71%
+foot noise 5 px                                  court ok 100.0%  reproj   0.5 cm  dist err  1.1%  vtop err 0.14 m/s  jump MAE 10.2 cm  recall  32%  prec  65%
+low camera (elev 20 deg)                         court ok 100.0%  reproj   2.5 cm  dist err  1.0%  vtop err 0.11 m/s  jump MAE  4.4 cm  recall  77%  prec  99%
+high camera (elev 65 deg)                        court ok 100.0%  reproj   0.2 cm  dist err  1.1%  vtop err 0.11 m/s  jump MAE 13.8 cm  recall  16%  prec  55%
+occlusion gaps x3                                court ok 100.0%  reproj   0.5 cm  dist err  1.5%  vtop err 0.12 m/s  jump MAE  6.4 cm  recall  39%  prec  87%
+aggressive movement (accel up to 8 m/s^2)        court ok 100.0%  reproj   0.5 cm  dist err  3.6%  vtop err 0.16 m/s  jump MAE  5.8 cm  recall  51%  prec  56%
+mid camera (elev 45 deg)                         court ok 100.0%  reproj   0.4 cm  dist err  1.1%  vtop err 0.11 m/s  jump MAE  5.3 cm  recall  56%  prec  93%
+barrel distortion lam=-0.10, corrected           court ok 100.0%  reproj   0.9 cm  dist err  1.0%  vtop err 0.10 m/s  jump MAE  5.8 cm  recall  51%  prec  90%
+barrel distortion lam=-0.25, corrected           court ok 100.0%  reproj   1.0 cm  dist err  1.0%  vtop err 0.10 m/s  jump MAE  6.0 cm  recall  53%  prec  90%
+barrel distortion lam=-0.10, NOT corrected       court ok 100.0%  reproj  10.8 cm  dist err  0.8%  vtop err 0.13 m/s  jump MAE  7.9 cm  recall  54%  prec  56%
+heavy image noise (sigma 15)                     court ok 100.0%  reproj   0.3 cm  dist err  1.0%  vtop err 0.10 m/s  jump MAE  5.9 cm  recall  53%  prec  91%
+beach court (4 lines only)                       court ok 100.0%  reproj   0.6 cm  dist err  1.2%  vtop err 0.10 m/s  jump MAE  5.6 cm  recall  58%  prec  87%
+wrote results/validation.json in 234s

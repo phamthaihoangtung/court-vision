@@ -40,7 +40,7 @@ def heights(P, xy, uv):
 
 def detect_jumps(uv, Hinv, P, fps, min_height=0.15, min_dur=0.3, max_dur=0.9,
                  foot_sigma_px=2.0, max_resid_frac=0.25, ballistic_tol=(0.6, 1.7), min_equiv_accel=7.5,
-                 box_h=None, min_box_ratio=0.88):
+                 box_h=None, min_box_ratio=0.9, posture_frac=0.03, top_uv=None, min_top_ratio=0.6):
     """Matched-filter jump detector.
 
     For every candidate flight window [a, b] the ground track is the straight line between the
@@ -58,7 +58,14 @@ def detect_jumps(uv, Hinv, P, fps, min_height=0.15, min_dur=0.3, max_dur=0.9,
 
     Bbox cue: when legs are hidden (net, another player) the box bottom rises but the box gets
     shorter; a real jump lifts the whole body. Windows where the box height (box_h, px) drops
-    below `min_box_ratio` of its take-off/landing value are rejected as occlusions.
+    below `min_box_ratio` of its value just before take-off or just after landing are rejected
+    (occlusion, or a crouch / forward bend that moves the box bottom). Body-posture changes also
+    jitter the foot point in proportion to the person's image size, so the noise model uses
+    sqrt(foot_sigma_px^2 + (posture_frac * box_h)^2) pixels.
+
+    Whole-body cue: in a real jump the head rises with the feet. With top_uv (box-top pixels),
+    the rise of the box top along the image vertical must be at least `min_top_ratio` of the rise
+    of the foot point; a crouch (top drops) or legs hidden behind the net (top stays) fail it.
 
     uv: (T,2) foot pixels (NaN = missing); Hinv, P: per-frame (T,3,3)/(T,3,4).
     Returns (airborne mask, ground_xy with airborne frames interpolated, z series, jumps)."""
@@ -78,7 +85,17 @@ def detect_jumps(uv, Hinv, P, fps, min_height=0.15, min_dur=0.3, max_dur=0.9,
     z_disp -= np.nanmedian(z_disp)
     pre = rolling_nanmedian(xy, 3)                      # robust take-off / landing anchors
     Cc = -np.einsum("tij,tj->ti", np.linalg.inv(P[:, :, :3]), P[:, :, 3])      # camera centres (T,3)
-    box_ref = rolling_nanmedian(box_h, max(5, round(2.4 * fps))) if box_h is not None else None
+    if box_h is not None:
+        k = max(3, int(round(0.2 * fps)))
+        bp = np.pad(np.asarray(box_h, float), (k, k), constant_values=np.nan)
+        win = sliding_window_view(bp, k + 1)
+        import warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            box_before = np.nanmedian(win[:T], 1)        # frames t-k..t
+            box_after = np.nanmedian(win[k:k + T], 1)    # frames t..t+k
+    if top_uv is not None:
+        uv_s, top_s = rolling_nanmedian(uv, 3), rolling_nanmedian(top_uv, 3)
     cands = []
     for n in range(max(3, int(np.floor(min_dur * fps))), int(np.ceil(max_dur * fps)) + 1):
         a = np.arange(1, T - n - 1)                     # a = last ground frame, a+n = first ground frame
@@ -104,33 +121,51 @@ def detect_jumps(uv, Hinv, P, fps, min_height=0.15, min_dur=0.3, max_dur=0.9,
         Tf = n / fps
         hb = G * Tf ** 2 / 8
         pxm = (pm * v).sum(1) / np.maximum(nv, 1)
-        noise = foot_sigma_px / np.maximum(pxm, 1e-6)
+        if top_uv is not None:
+            gi = gl.reshape(-1, 2)
+            Pi = P[idx.ravel()]
+            q0 = np.einsum("tij,tj->ti", Pi, np.c_[gi, np.zeros(len(gi)), np.ones(len(gi))])
+            q1 = np.einsum("tij,tj->ti", Pi, np.c_[gi, np.ones(len(gi)), np.ones(len(gi))])
+            up = q1[:, :2] / q1[:, 2:3] - q0[:, :2] / q0[:, 2:3]
+            up = (up / (np.linalg.norm(up, axis=1, keepdims=True) + 1e-12)).reshape(*idx.shape, 2)
+            def rise(sig):
+                lin = sig[a][:, None] * (1 - tau)[None, :, None] + sig[a + n][:, None] * tau[None, :, None]
+                d = np.nan_to_num(((sig[idx] - lin) * up).sum(2))
+                vv = v & np.isfinite(sig[idx]).all(2) & np.isfinite(lin).all(2)
+                return (d * m[None] * vv).sum(1) / ((m[None] * vv) ** 2).sum(1).clip(1e-9), vv.sum(1)
+            rb, _ = rise(uv_s)
+            rt, nt = rise(top_s)
+            top_ok = (nt < 3) | (rt >= min_top_ratio * rb)
+        else:
+            top_ok = np.ones(len(a), bool)
+        if box_h is not None:
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                ref = np.nanmax(np.stack([box_before[a], box_after[a + n]]), 0)
+                inair = np.nanmedian(np.where(v, box_h[idx], np.nan), 1)
+            box_ok = ~(inair < min_box_ratio * ref)             # NaN -> no evidence -> keep
+            noise_px = np.sqrt(foot_sigma_px ** 2 + (posture_frac * np.nan_to_num(ref, nan=0.0)) ** 2)
+        else:
+            box_ok = np.ones(len(a), bool)
+            noise_px = np.full(len(a), float(foot_sigma_px))
+        noise = noise_px / np.maximum(pxm, 1e-6)
         mid = 0.5 * (g0 + g1)
         kobs = np.linalg.norm(mid - Cc[a, :2], axis=1) / np.maximum(Cc[a, 2], 1e-3)
         a_eq = 8 * h * kobs / Tf ** 2
-        if box_h is not None:
-            import warnings
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                ref = box_ref[a + n // 2]                       # typical box height over ~2 s of context
-                inair = np.nanmedian(np.where(v, box_h[idx], np.nan), 1)
-            box_ok = ~(inair < min_box_ratio * ref)             # NaN -> no evidence -> keep
-        else:
-            box_ok = np.ones(len(a), bool)
         good = (nv >= max(3, 0.6 * (n - 1))) & (h >= min_height) & (res <= max_resid_frac * h + 0.25 * noise) \
-            & (h >= ballistic_tol[0] * hb) & (h <= ballistic_tol[1] * hb) & (h > 4.0 * noise / np.sqrt(np.maximum(nv, 1) / 2)) & (a_eq >= min_equiv_accel) & box_ok
+            & (h >= ballistic_tol[0] * hb) & (h <= ballistic_tol[1] * hb) & (h > 4.0 * noise / np.sqrt(np.maximum(nv, 1) / 2)) & (a_eq >= min_equiv_accel) & box_ok & top_ok
         for i in np.nonzero(good)[0]:
             cands.append((h[i] / (res[i] + 0.25 * noise[i] + 0.01) * (1 - abs(np.log(h[i] / hb)) / 2), int(a[i]), int(a[i] + n),
-                          float(h[i]), float(res[i]), float(hb), float(pxm[i]), int(nv[i]), float(kobs[i])))
+                          float(h[i]), float(res[i]), float(hb), float(pxm[i]), int(nv[i]), float(kobs[i]), float(noise_px[i])))
     cands.sort(key=lambda c: -c[0])
     jumps = []
-    for sc, a, b, h, res, hb, pxm, nv, kob in cands:
+    for sc, a, b, h, res, hb, pxm, nv, kob, npx in cands:
         if airborne[max(a - 1, 0):b + 2].any():
             continue
         airborne[a + 1:b] = True
         w = (np.arange(a, b + 1) - a) / (b - a)
         ground[a:b + 1] = pre[a][None] * (1 - w[:, None]) + pre[b][None] * w[:, None]
-        sigma = np.sqrt((res / np.sqrt(max(nv / 3.0, 1.0))) ** 2 + (foot_sigma_px / max(pxm, 1e-6)) ** 2)
+        sigma = np.sqrt((res / np.sqrt(max(nv / 3.0, 1.0))) ** 2 + (npx / max(pxm, 1e-6)) ** 2)
         jumps.append({"f0": a, "f1": b, "f_peak": (a + b) // 2, "height_m": h, "sigma_m": float(sigma),
                       "height_ballistic_m": hb, "flight_s": (b - a) / fps, "px_per_m": pxm, "observability_k": kob,
                       "xy": ground[(a + b) // 2].tolist()})

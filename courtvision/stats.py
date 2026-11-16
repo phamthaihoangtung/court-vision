@@ -76,7 +76,9 @@ def analyze(tracks, H, Hs, fps, tpl, size, cfg: AnalysisConfig | None = None, se
         sl = slice(f0, f1 + 1)
         bh = np.full(len(uv), np.nan)
         bh[tr.frames - f0] = tr.boxes[:, 3] - tr.boxes[:, 1]
-        air, ground, z, jumps = detect_jumps(uv, Hinv[sl], P[sl], fps, min_height=cfg.min_jump_m, box_h=bh)
+        top = np.full((len(uv), 2), np.nan)
+        top[tr.frames - f0] = np.c_[(tr.boxes[:, 0] + tr.boxes[:, 2]) / 2, tr.boxes[:, 1]]
+        air, ground, z, jumps = detect_jumps(uv, Hinv[sl], P[sl], fps, min_height=cfg.min_jump_m, box_h=bh, top_uv=top)
         meas = ground.copy()
         obs = np.isfinite(uv).all(1)
         pos, vel = kalman_rts(meas, dt, cfg.sigma_a, cfg.sigma_m)

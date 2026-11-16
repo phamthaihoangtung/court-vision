@@ -149,4 +149,7 @@ def test_occluded_legs_are_not_a_jump():
     head = cam.project(np.c_[xy, np.full(T, 1.8)])
     box_h = head[:, 1] * 0 + np.abs(head[:, 1] - uv[:, 1])           # head fixed, feet "rise"
     assert len(detect_jumps(uv, np.linalg.inv(H), P, fps, box_h=box_h)[3]) == 0
+    assert len(detect_jumps(uv, np.linalg.inv(H), P, fps, top_uv=head - [0, 0])[3]) == 0     # head did not rise
     assert len(detect_jumps(uv, np.linalg.inv(H), P, fps, box_h=np.full(T, 100.0))[3]) == 1
+    head_jump = cam.project(np.c_[xy, z + 1.8])
+    assert len(detect_jumps(uv, np.linalg.inv(H), P, fps, top_uv=head_jump)[3]) == 1         # whole body rose
