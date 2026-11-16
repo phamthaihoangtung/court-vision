@@ -10,3 +10,6 @@ results/**/pass1.pkl
 results/**/positions.csv
 results/*.log
 results/*.txt
+
+# private notes kept outside the repository
+docs/upwork/
