@@ -190,3 +190,54 @@ def test_stitch_rejects_overlap_with_other_player_or_in_a_cluster():
     b = _walk(2, range(150, 300), (2.0, 4.0), v, rng)
     c = _walk(3, range(0, 300), (2.0, 4.5), v, rng)
     assert len(filter_and_stitch([a, b, c], Hinv, fps, tpl)) == 3
+
+
+@pytest.mark.parametrize("seed", [2, 7])
+def test_online_matches_ground_truth_with_id_switches(seed):
+    """Frames pushed one by one; ByteTrack gives a new id after every occlusion gap. The online
+    analyzer must keep one slot per player and report distances close to the truth, with a fixed delay."""
+    from types import SimpleNamespace
+    from courtvision.online import OnlineAnalyzer, OnlineConfig
+    tpl, fps = get_template("indoor"), 25.0
+    cam = cam0()
+    rng = np.random.default_rng(seed)
+    gt = simulate_players(tpl, rng, duration=12.0)
+    tracks = simulate_detections(cam, gt, rng, noise_px=1.0)
+    T = gt["xy"].shape[1]
+    kit = {0: np.array([30.0, 128, 128]), 1: np.array([220.0, 128, 128])}
+    dets, next_id = [[] for _ in range(T)], 1000
+    for p, tr in enumerate(tracks):
+        side = int(np.median(gt["xy"][p][:, 0]) > tpl.net_x)
+        tid = p
+        for i, f in enumerate(tr.frames):
+            if i and f - tr.frames[i - 1] > 1:
+                tid, next_id = next_id, next_id + 1            # new id after each gap
+            dets[f].append({"tid": tid, "foot": tr.feet[i], "box": tr.boxes[i], "conf": 0.8,
+                            "color": kit[side] + rng.normal(0, 3, 3)})
+    reg = SimpleNamespace(H=cam.H, H_samples=np.tile(cam.H, (8, 1, 1)), ok=True)
+    on = OnlineAnalyzer(tpl, fps, cam.size, OnlineConfig(lag_s=2.0))
+    lags = []
+    for t in range(T):
+        out = on.push(reg, dets[t])
+        if out:
+            lags.append(t + 1 - on.done)
+    on.flush()
+    assert len(on.slots) == 12 and len(on.frames_out) == T
+    assert min(lags) >= 50 and max(lags) <= 50 + on.hop          # 2 s delay, finalised in hops
+    pos = np.full((T, 12, 2), np.nan)
+    for f, fr in enumerate(on.frames_out):
+        for sid, v in fr.items():
+            pos[f, sid] = v[0]
+    st = {s["sid"]: s for s in on.stats()}
+    err, same = [], []
+    for sid in range(12):
+        d = np.linalg.norm(pos[:, sid][:, None] - gt["xy"].transpose(1, 0, 2), axis=2)   # (T, players)
+        p = int(np.nanargmin(np.nanmedian(d, 0)))
+        m = np.isfinite(d[:, p])
+        same.append((d[m, p] < 0.5).mean())
+        truth = np.linalg.norm(np.diff(gt["xy"][p], axis=0), axis=1).sum()
+        err.append(abs(st[sid]["distance_m"] - truth) / max(truth, 1.0))
+    # same-kit players crossing while hidden can be swapped (offline stitching swaps them too):
+    # allow one swapped pair
+    assert sum(x > 0.95 for x in same) >= 10 and min(same) > 0.8
+    assert np.median(err) < 0.05
