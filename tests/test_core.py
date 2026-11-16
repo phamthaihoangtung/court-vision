@@ -8,7 +8,7 @@ from courtvision.lens import LensModel, estimate_plumbline
 from courtvision.stats import analyze, cameras_from_h
 from courtvision.synth import SynthCamera, random_camera, render_scene, simulate_detections, simulate_players
 from courtvision.templates import TEMPLATES, get_template
-from courtvision.tracking import kalman_rts
+from courtvision.tracking import Track, filter_and_stitch, kalman_rts
 from courtvision.validate import court_error
 
 
@@ -153,3 +153,40 @@ def test_occluded_legs_are_not_a_jump():
     assert len(detect_jumps(uv, np.linalg.inv(H), P, fps, box_h=np.full(T, 100.0))[3]) == 1
     head_jump = cam.project(np.c_[xy, z + 1.8])
     assert len(detect_jumps(uv, np.linalg.inv(H), P, fps, top_uv=head_jump)[3]) == 1         # whole body rose
+
+
+def _walk(tid, frames, start, vel, rng):
+    """Track walking in court metres; identity homography, so foot pixels are metres."""
+    frames = np.asarray(frames)
+    xy = np.asarray(start) + np.outer(frames, vel) + rng.normal(0, 0.03, (len(frames), 2))
+    return Track(tid, frames, xy, np.zeros((len(frames), 4)), np.zeros((len(frames), 3)))
+
+
+def test_stitch_id_handover_with_overlap():
+    """ByteTrack starts a new id while still emitting the old one: stitch and trim the old tail."""
+    rng = np.random.default_rng(0)
+    tpl, fps, T = get_template("indoor"), 25.0, 300
+    Hinv = np.tile(np.eye(3), (T, 1, 1))
+    v = (0.02, 0.0)
+    a = _walk(1, range(0, 160), (2.0, 4.0), v, rng)            # old id, emitted until frame 159
+    b = _walk(2, range(150, 300), (2.0, 4.0), v, rng)          # new id from frame 150: 10 frames overlap
+    other = _walk(3, range(0, 300), (6.0, 1.0), v, rng)        # a different player, far away
+    out = {t.tid: t for t in filter_and_stitch([a, b, other], Hinv, fps, tpl)}
+    assert set(out) == {1, 3}
+    m = out[1]
+    assert len(m.frames) == 300 and np.all(np.diff(m.frames) == 1)
+
+
+def test_stitch_rejects_overlap_with_other_player_or_in_a_cluster():
+    rng = np.random.default_rng(1)
+    tpl, fps, T = get_template("indoor"), 25.0, 300
+    Hinv = np.tile(np.eye(3), (T, 1, 1))
+    v = (0.02, 0.0)
+    # two different players 2 m apart, one id ends while the other starts: must not merge
+    a = _walk(1, range(0, 160), (2.0, 4.0), v, rng)
+    b = _walk(2, range(150, 300), (2.0, 6.0), v, rng)
+    assert len(filter_and_stitch([a, b], Hinv, fps, tpl)) == 2
+    # same-spot handover, but a third player stands 0.5 m from the new id: ambiguous, keep apart
+    b = _walk(2, range(150, 300), (2.0, 4.0), v, rng)
+    c = _walk(3, range(0, 300), (2.0, 4.5), v, rng)
+    assert len(filter_and_stitch([a, b, c], Hinv, fps, tpl)) == 3

@@ -61,8 +61,57 @@ def court_positions(track: Track, Hinv):
     return np.stack([apply_h(Hinv[f], track.feet[i:i + 1])[0] for i, f in enumerate(track.frames)])
 
 
-def filter_and_stitch(tracks, Hinv, fps, tpl, margin=3.0, min_dur=0.6, max_gap=3.0, max_players=12):
-    """Keep tracks on/near the court, stitch fragments broken by occlusion, keep the longest."""
+def _link(a, xa, b, xb, fps, max_gap, max_overlap, same_person_m):
+    """Cost of continuing track a with track b, or None if b cannot be a's continuation.
+
+    Gap: b starts after a ends; positions must agree within a running-speed budget.
+    Overlap: ByteTrack often starts a new id while still emitting the old one for a few frames
+    (up to ~1.6 s seen on real clips). b may start before a ends if b outlives a, the overlap is
+    short, and where both are observed they sit on the same spot (same player measured
+    <= 0.82 m apart, different players >= 1.23 m on the demo clips). a's overlapping tail is
+    dropped by the caller. Returns (cost, n_keep) with n_keep = observations of a to keep.
+    """
+    t0b = b.frames[0]
+    if t0b <= a.frames[0] or b.frames[-1] <= a.frames[-1]:
+        return None
+    if t0b > a.frames[-1]:                                    # plain gap
+        gap = (t0b - a.frames[-1]) / fps
+        if gap > max_gap:
+            return None
+        d = np.linalg.norm(np.median(xb[:3], 0) - np.median(xa[-3:], 0))
+        if d > 0.8 + 3.0 * gap:
+            return None
+        return d + 0.5 * gap, len(a.frames)
+    overlap = (a.frames[-1] - t0b + 1) / fps
+    if overlap > max_overlap:
+        return None
+    shared, ia, ib = np.intersect1d(a.frames, b.frames, return_indices=True)
+    if len(shared) and np.median(np.linalg.norm(xa[ia] - xb[ib], axis=1)) > same_person_m:
+        return None
+    n_keep = int(np.searchsorted(a.frames, t0b))             # a's observations before b starts
+    if n_keep < 3:
+        return None
+    d = np.linalg.norm(np.median(xb[:3], 0) - np.median(xa[n_keep - 3:n_keep], 0))
+    if d > same_person_m:
+        return None
+    return d + 0.5 * overlap, n_keep
+
+
+def _crowded(b, xb, items, i, j, radius, n=5):
+    """True if any other track stands within `radius` of b's first observations: an id handover
+    inside a cluster (players side by side at the net) is ambiguous, so it is not stitched."""
+    for k, (o, xo) in enumerate(items):
+        if k in (i, j):
+            continue
+        _, io, ih = np.intersect1d(o.frames, b.frames[:n], return_indices=True)
+        if len(io) and np.min(np.linalg.norm(xo[io] - xb[:n][ih], axis=1)) < radius:
+            return True
+    return False
+
+
+def filter_and_stitch(tracks, Hinv, fps, tpl, margin=3.0, min_dur=0.6, max_gap=3.0, max_players=12,
+                      max_overlap=2.0, same_person_m=1.0):
+    """Keep tracks on/near the court, stitch fragments broken by occlusion or id handover, keep the longest."""
     items = []
     for tr in tracks:
         if len(tr.frames) < max(3, min_dur * fps):
@@ -79,28 +128,27 @@ def filter_and_stitch(tracks, Hinv, fps, tpl, margin=3.0, min_dur=0.6, max_gap=3
         best = None
         for i, (a, xa) in enumerate(items):
             for j, (b, xb) in enumerate(items):
-                if i == j or b.frames[0] <= a.frames[-1]:
+                if i == j:
                     continue
-                gap = (b.frames[0] - a.frames[-1]) / fps
-                if gap > max_gap:
+                link = _link(a, xa, b, xb, fps, max_gap, max_overlap, same_person_m)
+                if link is None:
                     continue
-                d = np.linalg.norm(np.median(xb[:3], 0) - np.median(xa[-3:], 0))
-                if d > 0.8 + 3.0 * gap:
+                cost, n_keep = link
+                if n_keep < len(a.frames) and _crowded(b, xb, items, i, j, same_person_m):
                     continue
                 # do not stitch across the net
                 if tpl.has_net and (np.median(xa[:, 0]) - tpl.net_x) * (np.median(xb[:, 0]) - tpl.net_x) < 0 \
                         and min(abs(np.median(xa[:, 0]) - tpl.net_x), abs(np.median(xb[:, 0]) - tpl.net_x)) > 0.7:
                     continue
-                cost = d + 0.5 * gap
                 if best is None or cost < best[0]:
-                    best = (cost, i, j)
+                    best = (cost, i, j, n_keep)
         if best is not None:
-            _, i, j = best
+            _, i, j, k = best
             a, xa = items[i]; b, xb = items[j]
-            col = None if a.colors is None or b.colors is None else np.concatenate([a.colors, b.colors])
-            m = Track(a.tid, np.concatenate([a.frames, b.frames]), np.concatenate([a.feet, b.feet]),
-                      np.concatenate([a.boxes, b.boxes]), col, meta={"stitched": a.meta.get("stitched", 1) + 1})
-            items[i] = [m, np.concatenate([xa, xb])]
+            col = None if a.colors is None or b.colors is None else np.concatenate([a.colors[:k], b.colors])
+            m = Track(a.tid, np.concatenate([a.frames[:k], b.frames]), np.concatenate([a.feet[:k], b.feet]),
+                      np.concatenate([a.boxes[:k], b.boxes]), col, meta={"stitched": a.meta.get("stitched", 1) + 1})
+            items[i] = [m, np.concatenate([xa[:k], xb])]
             del items[j]
             merged = True
     items.sort(key=lambda it: -len(it[0].frames))
