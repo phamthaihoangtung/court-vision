@@ -1,9 +1,8 @@
 # court-vision
 
-Volleyball analytics from one fixed camera, with no model training: classical computer vision and
-3D geometry around a pretrained person detector. Point it at amateur footage and get player
-positions in metres, distance, speed, jumps, heatmaps and an annotated video with a live top-down
-minimap.
+Volleyball analytics from one fixed camera: classical computer vision and 3D geometry around a
+pretrained person detector. Point it at amateur footage and get player positions in metres,
+distance, speed, jumps, heatmaps and an annotated video with a live top-down minimap.
 
 ![demo](assets/demo.gif)
 

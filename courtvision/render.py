@@ -197,7 +197,7 @@ def team_card(results, tpl, path, clip_name="", meta=None):
                 bbox=dict(boxstyle="circle,pad=0.2", fc=c, ec="k", lw=0.5))
     ax.set_xlim(-2, tpl.width + 2); ax.set_ylim(tpl.length + 2, -2); ax.axis("off")
     fig.text(0.36, 0.9, "MATCH SUMMARY", color="white", fontsize=18, fontweight="bold")
-    fig.text(0.36, 0.855, f"{clip_name}  |  positions in metres from a single fixed camera, no training", color="#aaaaaa", fontsize=8)
+    fig.text(0.36, 0.855, f"{clip_name}  |  positions in metres from a single fixed camera", color="#aaaaaa", fontsize=8)
     hdr = ["", "dist m", "90% band", "top km/h", "avg km/h", "jumps", "max cm", "front %"]
     xs = [0.36, 0.42, 0.49, 0.60, 0.68, 0.76, 0.82, 0.90]
     for x, hname in zip(xs, hdr):

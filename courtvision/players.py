@@ -1,4 +1,4 @@
-"""Player detection + ByteTrack using pretrained Ultralytics YOLO weights (no training)."""
+"""Player detection + ByteTrack using pretrained Ultralytics YOLO weights."""
 from __future__ import annotations
 import cv2
 import numpy as np

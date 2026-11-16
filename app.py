@@ -21,7 +21,7 @@ def analyse(video, court, model_size, device, pose, stride, max_frames, undistor
 
 
 with gr.Blocks(title="court-vision") as demo:
-    gr.Markdown("# court-vision\nFixed-camera volleyball footage -> player positions in metres, speed, distance, jumps. No training.")
+    gr.Markdown("# court-vision\nFixed-camera volleyball footage -> player positions in metres, speed, distance, jumps.")
     with gr.Row():
         with gr.Column(scale=1):
             vid = gr.Video(label="Clip (fixed camera, court lines visible)")
