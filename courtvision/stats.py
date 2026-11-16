@@ -61,6 +61,53 @@ def _path_stats(xy, vel, dt, tpl, deadband):
             "front_row_frac": front}
 
 
+def band(v, samples, key, cfg):
+    """90% band for estimate v from Monte Carlo samples. Replicas carry the measurement noise twice
+    (observed + resampled), which inflates path length; use their spread around their own median,
+    centred on the estimate, plus the smoother's path-length bias for distance / average speed."""
+    lo, mid, hi = np.percentile(samples, [5, 50, 95])
+    lo, hi = v + (lo - mid), v + (hi - mid)
+    if key in ("distance_m", "avg_speed_ms"):
+        lo, hi = lo - cfg.smoothing_bias_frac * v, hi + cfg.smoothing_bias_frac * v
+    return float(max(min(lo, v), 0.0)), float(max(hi, v))
+
+
+def replica_positions(uv, Hsinv, bias, jumps, meas, pos, rng):
+    """(T,K,2) court positions under each bootstrap homography with a per-replica foot bias;
+    airborne frames are interpolated between take-off and landing in every replica, and the
+    tracker jitter observed around the smoothed path (meas - pos) is resampled on top."""
+    uvk = uv[:, None, :] + bias[None]                                  # (T,K,2)
+    ph = np.concatenate([uvk, np.ones((*uvk.shape[:2], 1))], -1)
+    q = np.einsum("tkij,tkj->tki", Hsinv, ph)
+    xyk = q[..., :2] / q[..., 2:3]
+    for j in jumps:
+        a, b = j["f0"], j["f1"]
+        w = np.linspace(0, 1, b - a + 1)[:, None, None]
+        ga = np.nanmedian(xyk[max(a - 3, 0):a + 1], 0); gb = np.nanmedian(xyk[b:b + 4], 0)
+        xyk[a:b + 1] = ga[None] * (1 - w) + gb[None] * w
+    dev = meas - pos
+    sig_meas = 1.4826 * np.nanmedian(np.abs(dev - np.nanmedian(dev, 0)), 0) if np.isfinite(dev).any() else np.zeros(2)
+    return xyk + rng.normal(0, 1, xyk.shape) * np.nan_to_num(sig_meas)[None, None]
+
+
+def jump_sigma(j, uv, xyk, Hs, f, size, bias, rng, cfg):
+    """Jump-height sigma combining the detector's own sigma with its spread over the bootstrap
+    homographies, foot bias and focal uncertainty. j: f0/f1 relative to uv / xyk / Hs."""
+    a, b = j["f0"], j["f1"]
+    idx = np.arange(a, b + 1)
+    v = np.isfinite(uv[idx]).all(1)
+    hk = []
+    for k in range(Hs.shape[1]):
+        fk = f * float(np.exp(rng.normal(0, cfg.focal_rel_sigma)))
+        Pk = np.stack([pose_from_h(Hs[i, k], fk, size).P for i in idx[v]])
+        w = ((idx[v] - a) / max(b - a, 1))[:, None]
+        ga = np.nanmedian(xyk[max(a - 3, 0):a + 1, k], 0); gb = np.nanmedian(xyk[b:b + 4, k], 0)
+        zz, _, _ = heights(Pk, ga[None] * (1 - w) + gb[None] * w, uv[idx[v]] + bias[k])
+        tau = ((idx[v] - a) / max(b - a, 1)); m = 4 * tau * (1 - tau)
+        hk.append(float((zz * m).sum() / ((m ** 2).sum() + 1e-9)))
+    return float(np.hypot(j["sigma_m"], np.std(hk)))
+
+
 def analyze(tracks, H, Hs, fps, tpl, size, cfg: AnalysisConfig | None = None, seed=0):
     """tracks: list[Track] (already filtered / team-labelled). H: (T,3,3), Hs: (T,K,3,3)."""
     cfg = cfg or AnalysisConfig()
@@ -85,49 +132,18 @@ def analyze(tracks, H, Hs, fps, tpl, size, cfg: AnalysisConfig | None = None, se
         base = _path_stats(pos, vel, dt, tpl, cfg.speed_deadband)
         # ---- Monte Carlo: bootstrap homographies (temporally coherent) + per-track foot bias
         bias = rng.normal(0, cfg.foot_bias_px, (K, 2))
-        uvk = uv[:, None, :] + bias[None]                                  # (T,K,2)
-        ph = np.concatenate([uvk, np.ones((*uvk.shape[:2], 1))], -1)
-        q = np.einsum("tkij,tkj->tki", Hsinv[sl], ph)
-        xyk = q[..., :2] / q[..., 2:3]
-        # airborne frames: interpolate between take-off and landing in every replica
-        for j in jumps:
-            a, b = j["f0"], j["f1"]
-            w = np.linspace(0, 1, b - a + 1)[:, None, None]
-            ga = np.nanmedian(xyk[max(a - 3, 0):a + 1], 0); gb = np.nanmedian(xyk[b:b + 4], 0)
-            xyk[a:b + 1] = ga[None] * (1 - w) + gb[None] * w
-        # tracker jitter: resample measurement noise at the level observed around the smoothed path
-        dev = meas - pos
-        sig_meas = 1.4826 * np.nanmedian(np.abs(dev - np.nanmedian(dev, 0)), 0) if np.isfinite(dev).any() else np.zeros(2)
-        xyk = xyk + rng.normal(0, 1, xyk.shape) * np.nan_to_num(sig_meas)[None, None]
+        xyk = replica_positions(uv, Hsinv[sl], bias, jumps, meas, pos, rng)
         pk, vk = kalman_rts(xyk.reshape(len(uv), -1), dt, cfg.sigma_a, cfg.sigma_m)
         pk, vk = pk.reshape(len(uv), K, 2), vk.reshape(len(uv), K, 2)
         mc = _path_stats(pk, vk, dt, tpl, cfg.speed_deadband)
         stats = {"duration_s": (f1 - f0) * dt, "observed_frac": float(obs.mean())}
         for key in base:
-            # replicas carry the measurement noise twice (observed + resampled), which inflates
-            # path length; use their spread around their own median, centred on the estimate
-            lo, mid, hi = np.percentile(mc[key], [5, 50, 95])
             v = float(base[key])
-            lo, hi = v + (lo - mid), v + (hi - mid)
-            if key in ("distance_m", "avg_speed_ms"):
-                lo, hi = lo - cfg.smoothing_bias_frac * v, hi + cfg.smoothing_bias_frac * v
             stats[key] = v
-            stats[key + "_lo"], stats[key + "_hi"] = float(max(min(lo, v), 0.0)), float(max(hi, v))
+            stats[key + "_lo"], stats[key + "_hi"] = band(v, mc[key], key, cfg)
         # ---- jump heights under each replica (+ focal uncertainty)
         for j in jumps:
-            a, b = j["f0"], j["f1"]
-            idx = np.arange(a, b + 1)
-            v = np.isfinite(uv[idx]).all(1)
-            hk = []
-            for k in range(K):
-                fk = f * float(np.exp(rng.normal(0, cfg.focal_rel_sigma)))
-                Pk = np.stack([pose_from_h(Hs[f0 + i, k], fk, size).P for i in idx[v]])
-                w = ((idx[v] - a) / max(b - a, 1))[:, None]
-                ga = np.nanmedian(xyk[max(a - 3, 0):a + 1, k], 0); gb = np.nanmedian(xyk[b:b + 4, k], 0)
-                zz, _, _ = heights(Pk, ga[None] * (1 - w) + gb[None] * w, uv[idx[v]] + bias[k])
-                tau = ((idx[v] - a) / max(b - a, 1)); m = 4 * tau * (1 - tau)
-                hk.append(float((zz * m).sum() / ((m ** 2).sum() + 1e-9)))
-            j["sigma_m"] = float(np.hypot(j["sigma_m"], np.std(hk)))
+            j["sigma_m"] = jump_sigma(j, uv, xyk, Hs[sl], f, size, bias, rng, cfg)
             j["f0"] += f0; j["f1"] += f0; j["f_peak"] += f0
             j["t_s"] = j["f_peak"] * dt
         keep = [j for j in jumps if j["height_m"] >= cfg.jump_snr * j["sigma_m"]]
